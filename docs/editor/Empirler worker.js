@@ -1,5 +1,13 @@
-self.importScripts('/Empirler.js');
-self.importScripts('/Libraries/js-console/jsConsole.sf.js');
+if(self.location.host.indexOf("github")!=-1){ //fix the base location for github hosted site
+    var parts = window.location.pathname.split("/");
+    parts.shift()
+    var projectPage = parts.shift();
+    self.importScripts("/"+projectPage+"/Empirler.js");
+    self.importScripts("/"+projectPage+"/Libraries/js-console/jsConsole.sf.js");
+}else{
+    self.importScripts("/Empirler.js");
+    self.importScripts("/Libraries/js-console/jsConsole.sf.js");
+}
 
 //setup empirler and error handeling
 {
