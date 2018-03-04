@@ -1,0 +1,87 @@
+[head]
+    [html]
+        <link rel="icon" type="image/png" href="favicon.png">
+        <style>
+            .button {
+                width:100%;
+                height:30px;
+                font-size:16pt;
+                line-height: 30px;
+                padding-left: 5px;
+            }
+            
+            .button:hover {
+                background-color:rgb(240,240,240);
+            }
+            
+            .button:active {
+                background-color:rgb(230,230,230);
+            }
+            
+            .websiteBrowser > a{
+                color: black;
+                text-decoration: none;
+            }
+            
+            .websiteBrowser > a:active{
+                color:black;
+            }
+            .websiteBrowser > a:hover{
+                background-color:rgb(240,240,240);
+            }
+        </style>
+    [/html]
+[/head]
+[siteBrowser]
+    [center]
+        [img width=50% styled=false hasPopup=false]favicon.png[/img]
+    [/center]
+    `
+    `
+    [link url="About.html"          ][button]About          [/button][/link]
+    [link url="API-Reference.html"  ][button]API Reference  [/button][/link]
+    [link url="Examples.html"  ][button]Examples  [/button][/link]
+    `
+    [link url="DML/About.html"       ][button]About DML          [/button][/link]
+    [link url="DML/API-Reference.html"  ][button]DML API Reference  [/button][/link]
+    `
+    [link url="editor/editor.html"][button]Empirler Editor[/button][/link]
+    [link url="https://github.com/TarVK/Empirler/tree/version-1.0"][button]Source Code[/button][/link]
+    [html]
+        <div style=position:absolute;left:0;bottom:0;padding:20px>
+            By Tar van Krieken<br> and Sancarn
+        </div>
+    [/html]
+[/siteBrowser]
+[ld]
+    node.js = https://nodejs.org/en/
+    examples and templates = Examples.html
+    API reference = API-Reference.html
+    editor = editor/editor.html
+[/ld]
+
+# Empirler
+## A library for building markup language transpilers.
+Empirler.js is an open-source library, written in JavaScript. It can be used to create your own markup language, and transpile it to a known language like HTML. It is designed to both be usable client and server side. To use the library server side you require [link]node.js[/link].`
+`
+Even though Empirler was initially designed to build markup languages, it is not limited to them.`
+`
+It can be used to build transpilers which convert one programming language to another. In general, transpiling with Empirler is very easy as long as the 2 languages follow a similar structure. However if the 2 languages have entirely different structures, transpiling will be more difficult to achieve within Empirler. This is one of the major obstacles we want to overcome in Empirler v2`
+`
+It can also be used in any case where data requires reading or transpiling but contains too much structure to just be understood purely with RegEx. Empirler can be seen as a library to extend the capabilities of a RegEx replacement, by providing structure and context to these replacements.`
+`
+Below is a live demo that transpiles xml into a json representation:`
+`
+[center]
+    [iframe url="xml demo.html" width="800px" height:"300px" styled=true][/iframe]`
+[/center]
+`
+If you are interested in creating your own transpiler using Empirler, you can take a look at the [link]examples and templates[/link].`
+If you want to know the exact details about Empirler, you can check the [link]API reference[/link].`
+If you already know how to work with Empirler, and just want a nice environment to create your syntax, you can use our [link]editor[/link]`
+`
+## DML
+Currently, we have personally created 1 markup language with Empirler, called DML, which stands for Documentation Markup Language. All of the content on this website, with the exception of the Empirler [link]editor[/link], has been written using DML.`
+`
+Click [link url="DML/About.html"]here[/link] to find out more about DML.`
+`

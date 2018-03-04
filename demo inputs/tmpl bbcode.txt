@@ -1,0 +1,4 @@
+[b] bold text [/b]
+plain text
+[m amount=15] margin left [/m]
+[m amount=test] invalid margin [/m]

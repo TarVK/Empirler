@@ -1,0 +1,16 @@
+function test(stuff){
+    childFunc = function(variable){
+        stuff = variable;
+    };
+    childFunc2 = function(stuff, variable){
+        stuff = variable;
+        return stuff;
+    };
+    
+    
+    if(true){
+        stuff = stuff+"test";
+    }
+    
+    return "stuff here";
+}

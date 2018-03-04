@@ -1,0 +1,677 @@
+[head]
+    [html]
+        <link rel="icon" type="image/png" href="../favicon.png">
+        <style>
+            .button {
+                width:100%;
+                height:30px;
+                font-size:16pt;
+                line-height: 30px;
+                padding-left: 5px;
+            }
+            
+            .button:hover {
+                background-color:rgb(240,240,240);
+            }
+            
+            .button:active {
+                background-color:rgb(230,230,230);
+            }
+            
+            .websiteBrowser > a{
+                color: black;
+                text-decoration: none;
+            }
+            
+            .websiteBrowser > a:active{
+                color:black;
+            }
+            .websiteBrowser > a:hover{
+                background-color:rgb(240,240,240);
+            }
+        </style>
+    [/html]
+[/head]
+[siteBrowser]
+    [center]
+        [img width=50% styled=false hasPopup=false]../favicon.png[/img]
+    [/center]
+    `
+    `
+    [link url="../About.html"          ][button]About          [/button][/link]
+    [link url="../API-Reference.html"  ][button]API Reference  [/button][/link]
+    [link url="../Examples.html"  ][button]Examples  [/button][/link]
+    `
+    [link url="About.html"       ][button]About DML          [/button][/link]
+    [link url="API-Reference.html"  ][button]DML API Reference  [/button][/link]
+    `
+    [link url="../editor/editor.html"][button]Empirler Editor[/button][/link]
+    [link url="https://github.com/TarVK/Empirler/tree/version-1.0"][button]Source Code[/button][/link]
+    [html]
+        <div style=position:absolute;left:0;bottom:0;padding:20px>
+            By Tar van Krieken<br> and Sancarn
+        </div>
+    [/html]
+[/siteBrowser]
+# Documentation Markup Language
+
+    ## General Syntax
+    
+        ### Nested DML
+        
+            DML is nested inside all elements. You can put DML inside other DML elements. For example here's a spoiler inside a spoiler inside a spoiler:
+            
+            ```dml
+                [spoiler]
+                    [spoiler]
+                        [spoiler]
+                            *|Very hidden text.|*
+                        [/spoiler]
+                    [/spoiler]
+                [/spoiler]
+            ```
+            `
+        `
+[[      ### Backtick
+[[            Uses: ...`
+[[      `
+        ### Indenting text
+            `#### Syntax`
+            
+                ```dml
+                    text
+                        indented text
+                    other text
+                ```
+                Only soft tabs will properly be indented and the first indent within a BBCode tag will automatically be remove, and won't become an indent in the output.`
+                `
+                Note that indents are treated as any other wrapper around text,`
+                This means that the following won't work:
+                ```dml
+                    [p]
+                            text
+                            [/p]
+                    other text
+                ```
+                For the same reason that `dml [p][b]text[/p][b]` won't work. The indent group must be closed, before the paragraph can be closed.
+            `#### Preview`
+                text
+                    indented text
+                other text
+            `
+        `
+        ### Paragraphs
+            `#### Syntax`
+            
+                ```dml
+                    [p]
+                        Some cool text here
+                    [/p]
+                    [p]
+                        Some more cool text here
+                    [/p]
+                ```
+            
+            `#### Preview`
+            
+                [p]
+                    Some cool text here
+                [/p]
+                [p]
+                    Some more cool text here
+                [/p]
+            `
+        ### Bold text
+        
+            Pattern : `dml *text*``
+            BBCode  : `dml [b]text[/b]``
+            Preview : *text*`
+            `
+        ### Italic text
+        
+            Pattern : `dml |text|``
+            BBCode  : `dml [i]text[/i]``
+            Preview : |text|`
+            `
+        ### Underlined text
+        
+            Pattern : `dml _text_``
+            BBCode  : `dml [u]text[/u]``
+            Preview : _text_`
+            `
+        ### Strikethrough text
+        
+            Pattern : `dml ~text~``
+            BBCode  : `dml [s]text[/s]``
+            Preview : ~text~`
+            `
+        ### New lines`
+            To insert a new line add a backtick [c]`[/c] to the end of the line.`
+            `
+            `#### Syntax`
+            
+                ```dml
+                    some line of text`
+                    some new line
+                ```
+                
+                Alternatively you can use the newlines bbtag:`
+                
+                ```dml
+                    [linebreaks]
+                        some
+                        multiline
+                        text
+                    [/linebreaks]
+                ```
+            
+            `#### Preview`
+            
+                some line of text`
+                some new line
+                
+                [linebreaks]
+                    some
+                    multiline
+                    text
+                [/linebreaks]
+        `
+        ### Comment
+        
+            `#### Syntax`
+                
+                ```dml
+                    [[ this is a comment
+                ```
+                
+                Comments will not appear in the compiled html document. They are good for documentation as to why you documented something in a certain way or todo lists! For example:
+                
+                ```dml
+                    [[ To do list
+                    [[ * Document about great feature x
+                    [[ * Do some other useful thing
+                    ...
+                ```
+                
+            `#### Note`
+                
+                You cannot really use a comment on the same line as another part of DML. For example:
+                
+                ```dml
+                    Some line of dml`    [[some amazing comment
+                    another line of dml`
+                ```
+                
+                In the above case the back tick will be interprated as a code block instead of a
+                back tick lead by a comment. This is an inbuilt limitation of how DML works and
+                would require a complete re-write of the engine to fix.
+                
+                [[Currently the DML transpiler is a tokeniser and not an interprater.
+        `
+        ### Headers
+        
+            Headers are useful for cutting your documentation up into different sections.
+            When a header is added to the document it will also be added to the index
+            which can be found in the menu in the top-right corner of the page on small
+            devices, or towards the right of the page on larger devices.
+        
+            `#### Syntax`
+            
+                ```dml
+                    # Header 1
+                    ## Header 2
+                    ### Header 3
+                    #### Header 4
+                    ...
+                ```
+            
+            `#### Preview`
+                `# Header 1
+                `## Header 2
+                `### Header 3
+                `#### Header 4
+        `
+        ### Bullet points
+        
+            `#### Syntax`
+            
+                ```dml
+                    * Bullet type 1`
+                    ** Bullet type 2`
+                    *** Bullet type 3`
+                ```
+            
+            `#### Preview`
+            
+                * Bullet type 1`
+                ** Bullet type 2`
+                *** Bullet type 3`
+        `
+        ### Text allignment
+        
+            Often it is required to allign text to a specific position of the page.
+            To do this we have provided some bbcode tags which help allign text to certain
+            position on the page. `
+             
+            `#### Syntax`
+            
+                ```dml
+                    [center]Some[/center]
+                    [left]awesome[/left]
+                    [right]text[/right]
+                ```
+            
+            `#### Preview`
+            
+                [center]Some[/center]
+                [left]awesome[/left]
+                [right]text[/right]
+        `
+        ### Escaping
+        
+            Sometimes you might want to add a \#, \* or some other special character
+            to the document, to do this just use `\` to escape the special character.`
+            
+            `#### Syntax`
+            
+                ```dml
+                \#`
+                \*`
+                \\
+                ```
+            
+            `#### Preview`
+            
+                \#`
+                \*`
+                \\
+        `
+        ### Literal strings
+            
+            [literal]
+                Literal strings are used to insert text correctly into html. For example, if [, ] or other special characters are used they may be inserted into the html incorrectly. Instead use the literal tags and these will be converted
+                to[/literal] [link url=https://www.w3.org/International/questions/qa-escapes]Character Escapes[/link].`
+                `
+                Equally any DML code inside a pair of literal tags will be displayed as ordinary text.
+            
+            `#### Syntax`
+            
+                ```dml
+                    [literal]<div>[b]Awesome stuff here![/b]</div>[/literal]`
+                    [l]This is the shortened version.[/l]
+                ```
+            
+            `#### Preview`
+            
+                [literal]<div>[b]Awesome stuff here![/b]</div>[/literal]`
+                [l]This is the shortened version.[/l]
+        `
+        ### Horizontal line
+        
+            `#### Syntax`
+            
+                ```dml
+                    ----
+                ```
+            
+            `#### Preview`
+            
+                ----
+        `
+        ### Hyperlinks
+            
+            `#### Syntax`
+            
+                ```dml
+                    [link url=http://google.com]Google here[/link]
+                    [and here][http://google.com]
+                    [http://google.com][and here]
+                ```
+                
+            `#### Preview`
+            
+                [link url=http://google.com]Google here[/link]
+                [and here][http://google.com]
+                [http://google.com][and here]
+            
+            `#### Attributes
+                [spoiler shownText="Click to hide" hiddenText="Click to show"]
+                    [table]
+                        [header]
+                            [column]
+                                Attribute
+                            [/column]
+                            [column]
+                                Comment
+                            [/column]
+                        [/header]
+                        [row]
+                            [column]`js String` - url[/column]
+                            [column]The URL to navigate to when the link is clicked.[/column]
+                        [/row]
+                    [/table]
+                [/spoiler]
+        `
+        ### Images
+        
+            `#### Syntax`
+                
+                ```dml
+                    [img styled=true name="A cute cat" showName=true width=300]https://static.pexels.com/photos/104827/cat-pet-animal-domestic-104827.jpeg[/img]
+                    [image styled=false name="A cute cat" showName=true width=300]https://static.pexels.com/photos/104827/cat-pet-animal-domestic-104827.jpeg[/image]
+                ```
+            
+            `#### Preview`
+            
+                [img styled=true name="A cute cat" showName=true width=300]https://static.pexels.com/photos/104827/cat-pet-animal-domestic-104827.jpeg[/img]
+                [image styled=false name="A cute cat" showName=true width=300]https://static.pexels.com/photos/104827/cat-pet-animal-domestic-104827.jpeg[/image]
+            
+            `#### Attributes
+                [spoiler shownText="Click to hide" hiddenText="Click to show"]
+                    [table]
+                        [header]
+                            [column]
+                                Attribute
+                            [/column]
+                            [column]
+                                Comment
+                            [/column]
+                        [/header]
+                        [row]
+                            [column]`js Boolean` - styled[/column]
+                            [column]Whether or not the image should be styled. Styling an element makes it look like it is hovering over the page by applying a shadow, and places the element in a div with a white background.[/column]
+                        [/row]
+                        [row]
+                            [column]`js String` - name[/column]
+                            [column]An optional alias for the picture[/column]
+                        [/row]
+                        [row]
+                            [column]`js Boolean` - showName[/column]
+                            [column]If this is set to true, the name will show beneath the picture as a title. By default this attribute is set to false.[/column]
+                        [/row]
+                        [row]
+                            [column]`js Number` - width[/column]
+                            [column]Set this value when you want to change the visible width of the picture. Note you can specify whether the picture takes up a fixed width of pixels (default) or a percentage of the width of the available area. To do so use `width=80px` or `width=80%` respectively.[/column]
+                        [/row]
+                        [row]
+                            [column]`js Boolean` - hasPopup[/column]
+                            [column]When true, the picture will 'pop up' to show the image in full size, when clicked. The name is also displayed in this pop up window. The default for this attribute is true.[/column]
+                        [/row]
+                    [/table]
+                [/spoiler]
+        `
+        ### Youtube videos
+        
+            `#### Syntax`
+                ```dml
+                    [[ Players with options
+                    [yt start=100 end=200 width=100]https://www.youtube.com/watch?v=gtZ7OVoI2nc[/yt]`
+                    [youtube start=100 end=200 width=100]https://www.youtube.com/watch?v=gtZ7OVoI2nc[/youtube]`
+                    [youtube start=100 end=200 width=100 url="https://www.youtube.com/watch?v=gtZ7OVoI2nc"][/youtube]`
+                    
+                    [[ Basic player with no options
+                    https://www.youtube.com/watch?v=gtZ7OVoI2nc`
+                ```
+        
+            `#### Preview`
+                
+                [[ Players with options
+                [yt start=100 end=200 width=100]https://www.youtube.com/watch?v=gtZ7OVoI2nc[/yt]`
+                [youtube start=100 end=200 width=100]https://www.youtube.com/watch?v=gtZ7OVoI2nc[/youtube]`
+                [youtube start=100 end=200 width=100 url="https://www.youtube.com/watch?v=gtZ7OVoI2nc"][/youtube]`
+                
+                [[ Basic player with no options
+                https://www.youtube.com/watch?v=gtZ7OVoI2nc`
+        `
+        ### Spoiler
+            
+            `#### Syntax`
+            
+                ```dml
+                    [spoiler text=ButtonText shown=false]
+                        Some cool shown text here!
+                    [/spoiler]
+                    
+                    ----
+                    
+                    [spoiler shownText="Close me" hiddenText="Open me"]
+                        Some cool shown text here!
+                    [/spoiler]
+                    
+                    ----
+                    
+                    [spoiler]
+                        [shownSpoilerText]I'm open![/shownSpoilerText]
+                        [hiddenSpoilerText]I'm closed, *and can be formatted*![/hiddenSpoilerText]
+                        I'm inside! *and* |can| _be formatted_ `too!`
+                    [/spoiler]
+                ```
+            
+            `#### Preview`
+            
+                [spoiler text=ButtonText shown=false ]
+                    Some cool shown text here!
+                [/spoiler]
+                
+                ----
+                
+                [spoiler shownText="Close me" hiddenText="Open me"]
+                    Some cool shown text here!
+                [/spoiler]
+                
+                ----
+                
+                [spoiler]
+                    [shownSpoilerText]I'm open![/shownSpoilerText]
+                    [hiddenSpoilerText]I'm closed, *and can be formatted*![/hiddenSpoilerText]
+                    I'm inside! *and* |can| _be formatted_ `too!`
+                [/spoiler]
+        `
+        ### Table
+        
+            Unlike in Markdown tables are designed to be easy to produce from software and easy to read by a human, while looking more like a html table than a real table in code. This is due to the fact that in general with complicated table structures this is much more clear than the likes produced by markdown.
+            
+            `#### Syntax`
+            
+                ```dml
+                    [table]
+                        [header]
+                            [column]Column A[/column]
+                            [column]Column B[/column]
+                        [/header]
+                        [row]
+                            [column]1[/column]
+                            [column]a[/column]
+                        [/row]
+                        [row]
+                            [column]2[/column]
+                            [column]b[/column]
+                        [/row]
+                        [row]
+                            [column]3[/column]
+                            [column]c[/column]
+                        [/row]
+                    [/table]
+                ```
+            
+            `#### Preview`
+            
+                [table]
+                    [header]
+                        [column]Column A[/column]
+                        [column]Column B[/column]
+                    [/header]
+                    [row]
+                        [column]1[/column]
+                        [column]a[/column]
+                    [/row]
+                    [row]
+                        [column]2[/column]
+                        [column]b[/column]
+                    [/row]
+                    [row]
+                        [column]3[/column]
+                        [column]c[/column]
+                    [/row]
+                [/table]
+        `
+        ### Row
+        
+            Rows are useful for splitting up data into columns without the same css style as a full blown table.
+            
+            `#### Syntax`
+            
+                ```dml
+                    [row]
+                        [column]A Mug[/column][column]other text[/column]
+                    [/row]
+                ```
+            
+            `#### Preview`
+            
+                [row]
+                    [column]A Mug[/column][column]other text[/column]
+                [/row]
+        `
+        ### LaTeX
+        
+            LaTeX is a useful language for writing mathematical equations and formula. It is commonly used as a full markup language in the creation of academic papers. Here we can use latex to format equations inside DML.
+            
+            `#### Syntax`
+            
+                ```dml
+                    [latex]
+                        x = \left ( \frac{2\pi r^2 + \theta}{r-\pi} \right ) (r+1)
+                    [/latex]
+                ```
+            
+            `#### Preview`
+            
+                [latex]
+                    x = \left ( \frac{2\pi r^2 + \theta}{r-\pi} \right ) (r+1)
+                [/latex]
+                `
+                `
+    ## Advanced DML
+    
+        ### HTML
+        
+            The html tag allows you to write raw HTML into a website. Anything you put
+            between the tags will no be transpiled at all by the transpiler.
+            
+            `#### Syntax`
+            
+                ```dml
+                    [html]<button onclick=alert("Welcome")>Click me!</button>[/html]
+                ```
+            
+            `#### Preview`
+            
+                [html]<button onclick=alert("Welcome")>Click me!</button>[/html]
+        `
+        ### Divs
+        
+            Divs allow you to create a floating box on the page.
+            
+            `#### Syntax`
+            
+                ```dml
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi auctor efficitur tempus. Vivamus in ante id mi faucibus eleifend et a odio. Sed venenatis maximus vestibulum. 
+                    [div styled=true float=left width=100 color=Red fontSize=10]
+                        Some cool floating div here
+                    [/div] 
+                    Nunc tortor sem, ornare vitae ipsum at, molestie vulputate nisl. Sed consectetur augue non arcu mattis, luctus luctus diam cursus. Pellentesque posuere, diam a ultrices tincidunt, nisi nisi vehicula ligula, sed ornare elit tortor quis erat. Nam odio nulla, tempus in orci nec, tincidunt lobortis justo. 
+                ```
+            
+            `#### Preview`
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi auctor efficitur tempus. Vivamus in ante id mi faucibus eleifend et a odio. Sed venenatis maximus vestibulum. 
+                [div styled=true float=left width=100 color=Red fontSize=10]
+                    Some cool floating div here
+                [/div]
+                Nunc tortor sem, ornare vitae ipsum at, molestie vulputate nisl. Sed consectetur augue non arcu mattis, luctus luctus diam cursus. Pellentesque posuere, diam a ultrices tincidunt, nisi nisi vehicula ligula, sed ornare elit tortor quis erat. Nam odio nulla, tempus in orci nec, tincidunt lobortis justo. 
+        `
+        ### Iframe
+        
+            Iframes, just like in HTML, can be used to display other content on your server, or on outbound servers.
+            
+            `#### Syntax`
+            
+                ```dml
+                    [iframe styled=true width=800 height=200 url="http://example.com"][/iframe]
+                    [iframe styled=true width=800 height=320 url="../xml demo.html" internal=true][/iframe]
+                ```
+            
+            `#### Preview`
+            
+                [iframe styled=true width=800 height=200 url="http://example.com"][/iframe]
+                [iframe styled=true width=800 height=320 url="../xml demo.html" internal=true][/iframe]
+        `
+        ### Custom BBCode elements
+        
+            Custom BBCode allows you to hack your own DML elements into existence. Custom BBCode should only
+            really ever be used for overriding styles however they can be used to do a lot more. See the example syntax.`
+            `
+            The general rule is that any name you give inside BBCode will be given to the class of the html 
+            element. This allows you to easily create a custom style with CSS or even custom behaviour with 
+            javascript at runtime.`
+            `
+            
+            
+            `#### Example 1 `
+            
+                ```dml
+                    [coolStyle]Some cool looking text![/coolStyle]
+                    [html]
+                        <style>
+                            .coolStyle {
+                                background-color:black;
+                                color:red;
+                            }
+                        </style>
+                    [/html]
+                ```
+            
+            `#### Preview`
+            
+                [coolStyle]Some cool looking text![/coolStyle]
+                [html]
+                    <style>
+                        .coolStyle {
+                            background-color:black;
+                            color:red;
+                        }
+                    </style>
+                [/html]
+                `
+            `#### Example 2 `
+            
+                ```dml
+                    [uri]Some great text to encode[/uri]
+                    [html]
+                        <script>
+                            document.onload = function(){
+                                var c = document.getElementsByClassName("uri");
+                                Array.from(c).forEach(function(el){
+                                    el.innerText = encodeURI(el.innerText);
+                                });
+                            }
+                        </script>
+                    [/html]
+                ```
+            
+            `#### Preview`
+            
+                [uri]Some great text to encode[/uri]
+                [html]
+                    <script>
+                        window.onload = function(){
+                            var c = document.getElementsByClassName("uri");
+                            Array.from(c).forEach(function(el){
+                                el.innerHTML = encodeURI(el.innerHTML);
+                            })
+                        }
+                    </script>
+                [/html]
+                `
+    [[## Extending/Customising DML
+        [[See Empirler for further details on customising DML.

@@ -1,0 +1,159 @@
+<html>
+    <head>
+        <title>Empirler xml example</title>
+        <link rel="icon" href="favicon.png">
+        <script src='../Libraries/Ace/build/ace.js' class=ace></script>
+        <script src='../Libraries/JQuery/jQuery.js'></script>
+        <script src='../Empirler.js'></script>
+        <style>
+            body, html{
+                width: 100%;
+                height: 100%;
+                margin: 0px;
+            }
+            .input, .output{
+                float: left;
+                width: 50%;
+                height: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <div class=input></div>
+        <div class=output></div>
+        <script>
+            var input = ace.edit($(".input")[0]);
+            input.getSession().setMode("ace/mode/xml");
+            var output = ace.edit($(".output")[0]);
+            output.getSession().setMode("ace/mode/json");
+            output.setReadOnly(true);
+            
+            
+            var recurse = function(obj, func){
+                func.call(obj, obj);
+                for(var k in obj){
+                    if(obj[k]!=null && typeof(obj[k])=="object"){
+                        recurse(obj[k], func);
+                    }
+                }
+            }
+            
+            // Note:
+            // * Does not support unicode.
+            // * Does not support glyphs.
+            // NB: The above can be implemented if required, but is out of scope of this demo.
+            var Rule = Empirler.Rule;
+            var xmlToJsonSyntax = new Empirler.Syntax({
+                ruleSet: new Empirler.RuleSet([
+                    new Rule({
+                        name: "docInfoOrComment",
+                        o: [/\<\?/, /<!--/],
+                        c: [/\>/, /-->/],
+                        or: "",
+                        cr: "",
+                        dr: "",
+                        rules: null,
+                    }), new Rule({
+                        name: "type",
+                        o: /\<(\w+)/,
+                        c: /(\/?)\>/,
+                        or: ",{\"type\": \"@1\", \"attributes\": {",
+                        cr: function(match, g1){
+                            return "}, \"children\": ["+(g1?"]}":"");
+                        },
+                        rules: {
+                            baseSet: [
+                                new Rule({
+                                    name: "attribute",
+                                    o: /[^\s=]+/,
+                                    c: /(?:\=(?:(?:"((?:\\.|[^"])+)")|(?:'((?:\\.|[^'])+)')|([^\s>]+)))?/,
+                                    or: ",\"@0\"",
+                                    cr: function(m, g1, g2, g3){
+                                        if(!m) return ":true,";
+                                        return ":\\\""+(g1||g2||g3)+"\\\"";
+                                    }
+                                })
+                            ]
+                        }
+                    }), new Rule({
+                        name: "content",
+                        o: /[^\<\>]+/,
+                        or: function(data){
+                            data = data.match(/^\s*([^]*?)\s*$/)[1];
+                            if(data.length==0) return "";
+                            return ',"'+data.replace(/\\/g, "\\\\\\\\").replace(/"/g, '\\\\"')+'"'; //every back slash should become a double backslash, but goes through a json parsing also, and needs to be represented by 2 slashes in a javascript string
+                        }
+                    }), new Rule({
+                        name: "typeClosing",
+                        o: /\<\/(\w+)/,
+                        c: /\>/,
+                        or: "]}",
+                        cr: ""
+                    })
+                ]),
+                postProcessor: function(input, content, elementConvertor, requiresConvertor, callback){
+                    try{
+                        //remove any enters and leading commas
+                        var text = content.substring(1).replace(/(\[|\{)\s*,/g, "$1").replace(/[\r\n]+/g, "\\n");
+                        
+                        //clean up simple values (this might not be prefered in practice, but the result looks cleaner)
+                        var obj =JSON.parse(text);
+                        recurse(obj, function(){
+                            if(this.type && this.attributes && this.children){
+                                //replace children by value if applicable
+                                if(this.children.length<=1 && (this.children[0]==undefined || typeof(this.children[0])=="string")){
+                                    var val = this.children[0];
+                                    delete this.children;
+                                    this.value = val;
+                                }
+                                //remove attributes object if empty
+                                if(Object.keys(this.attributes).length==0)
+                                    delete this.attributes;
+                            }
+                        })
+                        
+                        //prettyfy the json
+                        callback(JSON.stringify(obj, null, 4));
+                    }catch(e){
+                        var text = content.substring(1).replace(/(\[|\{)\s*,/g, "$1").replace(/[\r\n]+/g, "\\n");
+                        console.log(e, text);
+                        callback(input.srcText); //return the input text if an error occured
+                    }
+                }
+            });
+            Empirler.setSyntax(xmlToJsonSyntax);
+            
+            function transpile(){
+                var inputVal = input.getValue();
+                
+                //perform stacked dml call
+                Empirler.transpile(inputVal, function(outputVal){
+                    if(outputVal==inputVal){
+                        output.setValue("XML parsing failure", -1);
+                    }else{
+                        output.setValue(outputVal, -1);
+                    }
+                });
+            }
+            
+            input.setValue([
+                '<?xml version="1.0" encoding="UTF-8"?>',
+                '<note>',
+                '   <to>Tove</to>',
+                '   <from>Jani</from>',
+                '   <heading>Reminder</heading>',
+                "   <body>Don't forget me this weekend!</body>",
+                '</note>'
+            ].join("\n"), -1);
+            transpile();
+            
+            var timeout;
+            input.on("change", function(){
+                clearTimeout(timeout);
+                timeout = setTimeout(function(){
+                    transpile();
+                }, 1000);
+            });
+        </script>
+    </body>
+</html>

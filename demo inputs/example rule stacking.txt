@@ -1,0 +1,9 @@
+We Can Have {Some Cool Capitals Here} If We Want <br>
+
+[We Can Have Some Red Lower Case Here But, {Can't Have Cool Capitals Here}] <br>
+
+{We Can However Have [Some Red Lower Case Within Cool Capitals]} <br>
+
+-{No additional formatting [will be applied here]}- <br>
+
+(We Can Both Have Cool Capitals [And Replace Them By Red Text])

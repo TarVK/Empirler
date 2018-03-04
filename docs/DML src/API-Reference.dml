@@ -1,0 +1,1088 @@
+[head]
+    [html]
+        <link rel="icon" type="image/png" href="favicon.png">
+        <style>
+            .button {
+                width:100%;
+                height:30px;
+                font-size:16pt;
+                line-height: 30px;
+                padding-left: 5px;
+            }
+            
+            .button:hover {
+                background-color:rgb(240,240,240);
+            }
+            
+            .button:active {
+                background-color:rgb(230,230,230);
+            }
+            
+            .websiteBrowser > a{
+                color: black;
+                text-decoration: none;
+            }
+            
+            .websiteBrowser > a:active{
+                color:black;
+            }
+            .websiteBrowser > a:hover{
+                background-color:rgb(240,240,240);
+            }
+        </style>
+    [/html]
+[/head]
+[siteBrowser]
+    [center]
+        [img width=50% styled=false hasPopup=false]favicon.png[/img]
+    [/center]
+    `
+    `
+    [link url="About.html"          ][button]About          [/button][/link]
+    [link url="API-Reference.html"  ][button]API Reference  [/button][/link]
+    [link url="Examples.html"  ][button]Examples  [/button][/link]
+    `
+    [link url="DML/About.html"       ][button]About DML          [/button][/link]
+    [link url="DML/API-Reference.html"  ][button]DML API Reference  [/button][/link]
+    `
+    [link url="editor/editor.html"][button]Empirler Editor[/button][/link]
+    [link url="https://github.com/TarVK/Empirler/tree/version-1.0"][button]Source Code[/button][/link]
+    [html]
+        <div style=position:absolute;left:0;bottom:0;padding:20px>
+            By Tar van Krieken<br> and Sancarn
+        </div>
+    [/html]
+[/siteBrowser]
+[[ # General functioning of Empirler
+[[    Empirler goes over a document and dives it into a tree of nodes based on a given set of rules.
+[[    A rule defines what the opening of the node should turn into, how the data of the node needs to be handled and what the closing should turn in to.`
+    
+[ld]
+    Syntax = #Syntaxƒ
+    RuleSet = #RuleSet
+    RuleSet data = #RuleSet
+    Rule = #Rule
+    Rules = #Rule
+    Syntax's preProcessor method = #Syntax>preProcessor
+    Syntax's postProcessor method = #Syntax>postProcessor
+    preProcessor  = #Syntax>preProcessor
+    postProcessor = #Syntax>postProcessor
+    Input = #Input
+    Empirler's compile method = #Empirler>Methods>compile
+    RuleSet's removal method = #RuleSet>removal
+    Matcher = #Matcher
+    Matchers = #Matcher
+    Match = #Match
+    Matcher's replacements = #Matcher>rep_(replacement)
+    Matcher's getData method = #Matcher>getData
+    Replacement = #Replacement
+    Node = #Node
+    Nodes = #Node
+    Node's getData method = #Node>Methods>getData
+    baseSet = #RuleSet>baseSet
+[/ld]
+#Empirler
+    `##Description
+        The Empirler object is the main access point to all functionality implemented by Empirler.`
+        It also contains the classes required to create your own syntax mode, the configuration properties and the actual methods to perform transpilation.
+    ##Properties
+        #####`Syntax`
+            `######Type
+                Class
+            `######Description
+                The class that can be instantiated to create your [link]Syntax[/link].
+        #####`RuleSet`
+            `######Type
+                Class
+            `######Description
+                The class that can be instantiated to create the [link]RuleSet[/link] for your [link]Syntax[/link].
+        #####`Rule`
+            `######Type
+                Class
+            `######Description
+                The class that can be instantiated to create the [link]Rules[/link] for your [link]RuleSet[/link].
+        #####`paths`
+            `######Type
+                Object
+            `######Description
+                A set of directory paths that are used for file retrieval.`
+                The absolute paths will be used when Empirler is used client side, the relative paths are used when Empirler is used in NodeJS. 
+        #####`embedFiles`
+            `######Type
+                Boolean
+            `######Description
+                Whether Empirler should try to embed all the files on a single page such that there are no external dependencies.`
+                Set to false by default. 
+                Only applies when transpiling to HTML.
+        #####`runServerSide`
+            `######Type
+                Boolean
+            `######Description
+                Whether Empirler is running server or client side. This is used to choose between the relative or absolute file locations from the paths. It should automatically pick up the right platform as it initialises to `js typeof(require)!='undefined'`. But for edge cases like electron, or when using another require library, it can be overwritten.
+        #####`runAsynchronous`
+            `######Type
+                Boolean
+            `######Description
+                Whether file requests should be asynchronous. Defaults to true, When set to false, Empirler can run synchronously on small inputs.`
+                Unfortunately due to function stack size limits, it will still run asynchronously on bigger inputs, making this field useless for the most part.
+        #####`attemptCrossOriginCalls`
+            `######Type
+                Boolean
+            `######Description
+                Whether Empirler should attempt to deal with cross origin file requests. If set to true, all file requests will go through [link url='https://cors-anywhere.herokuapp.com/']cors-anywhere[/link].`
+                This only applies when Empirler is used client side.
+        #####`syntax`
+            `######Type
+                Object
+            `######Description
+                The [link]Syntax[/link] that is currently being used to transpile with. 
+    ##Methods
+        ###`compile`
+            `####Parameters
+                `#####` text`
+                    `######Type
+                        String
+                    `######Description
+                        The input text to be transpiled.
+                `#####anything
+                    Any additional arguments may be passed between the input text and the callback.`
+                    These will be passed to the [link]Syntax's preProcessor method[/link].
+                `#####`callback`
+                    `######Type
+                        Function
+                    `######Description
+                        Will be called when the transpiling is finished with the transpiled text as its first and only argument.`
+                        The transpiled text will be equal to the input text if a critical error has occurred.
+            `####Description
+                Executes the transpiling of text.
+        ###`setSyntax`
+            `####Parameters
+                `#####`syntax`
+                    `#####Type
+                        - String`
+                        - [link]Syntax[/link]
+                    `#####Description
+                        The Syntax to set.`
+                        If a String is provided, Empirler will search for a file in the formats directory that has this string as its name.
+                `#####`callback`
+                    `######Type
+                        Function
+                    `######Description
+                        The function that gets called when the syntax has been loaded.`
+                        The function will be called without any arguments.
+            `####Description
+                Sets the syntax to be used when transpiling text.
+        ###`updatePageElements`
+            `####Parameters
+                Function takes no parameters.
+            `####Description
+                Calls the instantiate method on all rules.`
+                This method is automatically called client side when any rules use instantiate, if you properly took care of this in the [link]Syntax's postProcessor method[/link].
+        ###`onWarning`
+            `####Parameters
+                `#####`message`
+                    `#####Type
+                        String
+                    `#####Description
+                        The warning message to display or handle in another way.
+                `#####`returnText`
+                    `######Type
+                        String
+                    `######Description
+                        The default text that the function should return for Empirler to use.
+            `####Description
+                A method that can be overwritten in order to handle warnings differently. 
+                The default method returns returnText as a result, and shows message in the console.
+        ###`onError`
+            `####Parameters
+                `#####`message`
+                    `#####Type
+                        String
+                    `#####Description
+                        The error message to display or handle in another way.
+                `#####`returnText`
+                    `######Type
+                        String
+                    `######Description
+                        The default text that the function should return for Empirler to use.
+            `####Description
+                A method that can be overwritten in order to handle errors differently. 
+                The default method returns returnText as a result, and shows message in the console.
+        ###`getFile`
+            `####Parameters
+                `#####`file`
+                    `######Type
+                        String
+                    `######Description
+                        The name of the file to retrieve.
+                `#####`execute`
+                    `######Type
+                        Boolean
+                    `######Description
+                        Whether the retrieved file is a js file and should be executed.`
+                        If set to false, you will get the literal content of the file.`
+                        If set to true, the file will be executed and you will get the result of the execution.`
+                        This field can be left out and will default to false.
+                `#####`callback`
+                    `######Type
+                        Function
+                    `######Description
+                        The function that will be called when the file has been retrieved.`
+                        The first and only argument will be the retrieved text.
+            `####Description
+                A method to retrieve files from the formats directory in Empirler.
+        ###`getLibrary`
+            `####Parameters
+                `#####`file`
+                    `######Type
+                        String
+                    `######Description
+                        The name of the file to retrieve.
+                `#####`execute`
+                    `######Type
+                        Boolean
+                    `######Description
+                        Whether the retrieved file is a js file and should be executed.`
+                        If set to false, you will get the literal content of the file.`
+                        If set to true, the file will be executed and you will get the result of the execution.
+                `#####`variable`
+                    `######Type
+                        String
+                    `######Description
+                        The variable that the result of the library is usual stored in.`
+                        For jQuery this would be $, for example.`
+                        This is used to retrieve the data that should be provided in the callback.`
+                        This field is only of relevance when Empirler is used client side.
+                `#####`callback`
+                    `######Type
+                        Function
+                    `######Description
+                        The function that will be called when the file has been retrieved.`
+                        The first and only argument will be the retrieved text.
+            `####Description
+                A method to retrieve files from the Libraries directory in Empirler.
+`
+#Syntax
+    `##Description
+        The class that bundles all the behavior to be used for transpiling in one object.
+    `##Constructor
+        ```js
+            new Syntax(data);
+        ```
+        `###`data`
+            `####Example
+                ```js
+                    {
+                        preProcessor: function(input, callback){
+                            var callback = arguments[arguments.length-1];
+                            callback();
+                        },
+                        ruleSet: ruleSet,
+                        postProcessor: function(input, content, callback){
+                            var callback = arguments[arguments.length-1];
+                            callback(content+"extraText");
+                        }
+                    }
+                ```
+            `####Type
+                Object
+            `####Description
+                The transpiler's behavior.
+            `####Fields
+                #####`preProcessor`
+                    `######Example
+                        `js
+                            preProcessor: function(input, callback){
+                                var callback = arguments[arguments.length-1];
+                                callback();
+                            }
+                        `
+                    `######Type
+                        Function
+                    `######Description
+                        The preprocessor of the text to be transpiled.`
+                        This function can be used to add properties to the [link]Input[/link] object. This object can be accessed directly from the [link]preProcessor[/link], [link]Rules[/link], and [link]postProcessor[/link]. The function can also be used to alter the [link url="#Input>srcText"]srcText[/link] before it is split into nodes. [link]Input[/link] is the first parameter passed to this function and `callback` as the last.`
+                        `
+                        When [link]Empirler's compile method[/link] is called with extra arguments, these will be inserted in between input and callback. Empirler will start transpiling code when you call the `callback` method.
+                #####`ruleSet`
+                    `######Example
+                        `js
+                            ruleSet: new RuleSet([
+                                someRule
+                            ]);
+                        `
+                    `######Type
+                        [link]RuleSet[/link]
+                    `######Description
+                        The rules that Empirler will use to transpile the [link url="#Input>srcText"]srcText[/link].
+                #####`postProcessor`
+                    `######Example
+                        `js
+                            postProcessor: function(input, content, elementConvertor, requiresConvertor, callback){
+                                var callback = arguments[arguments.length-1];
+                                Empirler.getFile("htmlTemplate" function(text){
+                                    callback(text.replace("[CONTENT]", content));
+                                });
+                            }
+                        `
+                    `######Type
+                        Function
+                    `######Description
+                        The function which runs after the rules have transpiled your source text.`
+                        This function can be used to further process the transpiled source into your desired output. If you are outputting HTML, for example, you could wrap the output into a div element in an existing HTML template.`
+                        The function will be called with the following arguments:`
+                            - [link]Input[/link]`
+                            - content`
+                            - elementConvertor`
+                            - requiresConvertor`
+                            - callback`
+                        If requiresConvertor is true, your return value in callback should include the content of elementConvertor.`
+                        This is only applicable if any of your rules used the `instantiate` field, however.`
+`
+#Rule
+    `##Description
+        Empirler splits up the document into nodes and afterwards stitches these nodes back together again. To do this it uses rules. In a nutshell, a rule contains the pattern to find create the node, and the code to transpile the node into the desired format.`
+        [spoiler text="Diagram"][img]DML src/resources/Empirler-BasicRule.png[/img][/spoiler]
+    `##Constructor
+        ```js
+            new Rule(data, shorthand);
+        ```
+    
+        ###`data`
+            `####Example
+                ```js
+                    {
+                        name: "string",
+                        opening: /"|'/,
+                        openingReplacement: '"',
+                        closing: "@0",
+                        closingReplacement: '"',
+                        rules: null
+                    }
+                ```
+            `####Type
+                Object
+            `####Description:
+                The data used to transpile your source text. If a rule doesn't define `closing`, it will simply close itself immediately and contain no content. Each field provides unique functionalities for matching and replacing nodes and their contents. By combining numerous fields we can create our own transpiler.
+            `####Fields
+                #####`name`
+                    `######Alias
+                        `n`
+                    `######Example
+                        `js name: "tag"`
+                    `######Type
+                        String
+                    `######Description
+                        A way of labeling a rule for identification.`
+                        This field is not strictly required, but is very useful for more complex rules.`
+                        See [link]RuleSet's removal method[/link] for instance.
+                #####`opening`
+                    `######Alias
+                        `o`
+                    `######Example
+                        `js opening: /\[|{/`
+                    `######Type
+                        [link]Matcher[/link]
+                    `######Description
+                        The format of the opening of a node.
+                #####`delete`
+                    `######Alias
+                        ` d`
+                    `######Example
+                        `js delete: "test"`
+                    `######Type
+                        [link]Matcher[/link]
+                    `######Description
+                        A format of what should be deleted within a node's content.`
+                        This generally isn't needed but can serve a purpose for advanced behavior. See {=Tab example.
+                #####`closing`
+                    `######Alias
+                        `c`
+                    `######Example
+                        `js closing: /\]|}/`
+                    `######Type
+                        [link]Matcher[/link]
+                    `######Description
+                        The format of the closing of a node.
+                #####`openingReplacement`
+                    `######Alias
+                        `or`
+                    `######Example
+                        `js openingReplacement: "text"`
+                    `######Type
+                        [link]Replacement[/link]
+                    `######Description
+                        The text that the matched `opening` text should be replaced with.`
+                        If not defined, the matched opening text will be kept.
+                #####`closingReplacement`
+                    `######Alias
+                        `cr`
+                    `######Example
+                        `js closingReplacement: "text"`
+                    `######Type
+                        [link]Replacement[/link]
+                    `######Description
+                        The text that the matched `closing` text should be replaced with.`
+                        If not defined, the matched closing text will be kept.
+                #####`dataReplacement`
+                    `######Alias
+                        `dr`
+                    `######Example
+                        `js dataReplacement: "text"`
+                    `######Type
+                        [link]Replacement[/link]
+                    `######Description
+                        The text that the content should be replaced with.`
+                        If not defined, the processed content of the node will be kept.
+                #####`rules`
+                    `######Alias
+                        ` r`
+                    `######Example
+                        `js 
+                            rules: {
+                                removal: ["ruleName"]
+                            }
+                        `
+                    `######Type
+                        A [link]RuleSet[/link], or instantiation data for a RuleSet.
+                    `######Description
+                        The rules that should be used to handle content in this node.`
+                        This is what determines the replacements being done on the content.`
+                        |Note: This is NOT an instance of RuleSet, but rather data which follows the RuleSet format.|
+                #####`fully`
+                    `######Alias
+                        `f`
+                    `######Example
+                        `js fully: true`
+                    `######Type
+                        Boolean
+                    `######Description
+                        Whether the replacement should happen despite the `closing` matcher not having been found in the document.`
+                        If set to true, the replacement will only happen if a `closing` match is found.`
+                        By default the value is false.`
+                #####`instantiate`
+                    `######Alias
+                        `i`
+                    `######Example
+                        `js 
+                            instantiate: function(element, match, g1, g2){
+                                $(element).html(g1);
+                            }
+                        `
+                    `######Type
+                        Function
+                    `######Description
+                        If your [link]Syntax[/link] transpiles into HTML, and some elements require client side instantiation, this method can be used.
+                        This function will be ran on client side when opening the resulting document. The context will be the rule, and as arguments it receives the element and the data from the opening matcher.
+                        Usage of this method is discouraged as it requires Empirler and the mode to be embedded on the transpiled page, see [link]Syntax's postProcessor method[/link].
+        ###`shorthand`
+            `####Example
+                ```js
+                    [
+                        {
+                            normal: ["tag"],
+                            selfClosing: ["selfClosingTag"],
+                            openingMatcher: function(data){
+                                return "["+data+"]";
+                            },
+                            closingMatcher: function(data){
+                                return "[/"+data+"]";
+                            },
+                            openingReplacement: "",
+                            closingReplacement: "",
+                        }
+                    ]
+                ```
+            `####Type
+                Array of Objects
+            `####Description
+                A way of passing a template to use as a rule, for when several rules are very similar.`
+                This could be used if you want to define bbCode or XML like tags.`
+                When a value from the [link url='#Rule>shorthand>normal']normal array[/link] is found as a field in a rule, the result of the opening and closing matchers will be added as closing and opening to the rule.`
+                The same applies to selfClosing, except only the `opening` matcher will be added to the rule.`
+                Please look at one of the {=examples as this concept might be somewhat difficult to grasp.`
+            `####Fields:
+                #####`normal`
+                    `######Example
+                        `js normal: ["tag"]`
+                    `######Type
+                        Array of Strings
+                    `######Description
+                        A list of strings that determine on what field the shorthand notation should activate on a rule.`
+                        When the shorthand finds an expression on which to activate, its opening and closing matchers will be added to the rule.`
+                        The following rule would activate because it has the field 'tag', and it's data will be "test":`
+                        `js
+                            new Rule({
+                                tag: "test"
+                            }, [{
+                                normal: ["tag"]
+                            }])
+                        `
+                #####`selfClosing`
+                    `######Example
+                        `js selfClosing: ["tag"]`
+                    `######Type
+                        Array of Strings
+                    `######Description
+                        A list of strings that determine on which field the shorthand notation should activate on a rule.`
+                        When the shorthand activates, only the opening will be added to the rule.`
+                        The following rule would activate because it has the field 'tag', and it's data will be "test":`
+                        `js
+                            new Rule({
+                                tag: "test"
+                            }, [{
+                                selfClosing: ["tag"]
+                            }])
+                        `
+                #####`openingMatcher`
+                    `######Example
+                        `js
+                            openingMatcher: function(data){
+                                return "test"
+                            }
+                        `
+                    `######Type
+                        Function returning [link]Matcher[/link]
+                    `######Description
+                        A function that is used to add the opening Matcher to the rule.`
+                        Data will be passed into the function from the rule, with which it can use to create the returned matcher.`
+                        The following rule would pass the data "test" to the openingMatcher:`
+                        `js
+                            new Rule({
+                                tag: "test"
+                            }, [{
+                                normal: ["tag"]
+                            }])
+                        `
+                #####`closingMatcher`
+                    `######Example
+                        `js
+                            closingMatcher: function(data){
+                                return "test"
+                            }
+                        `
+                    `######Type
+                        Function returning [link]Matcher[/link]
+                    `######Description
+                        A function that is used to add the closing Matcher to the rule.`
+                        Data will be passed into the function from the rule, with which it can use to create the returned matcher.`
+                        See openingMatcher for an example on what argument 'data' is.
+                #####`deletionMatcher`
+                    `######Example
+                        `js
+                            deletionMatcher: function(data){
+                                return "test"
+                            }
+                        `
+                    `######Type
+                        Function returning [link]Matcher[/link]
+                    `######Description
+                        A function that is used to add the deletion Matcher to the rule.`
+                        Data will be passed into the function from the rule, with which it can use to create the returned matcher.`
+                        See openingMatcher for an example on what argument 'data' is.
+                #####`openingReplacement`
+                    `######Example
+                        `js openingReplacement: "test"`
+                    `######Type
+                        String
+                    `######Description
+                        The default openingReplacement that will be added to a rule if the shorthand activated, and the rule didn't already define an openingReplacement.
+                #####`closingReplacement`
+                    `######Example
+                        `js closingReplacement: "test"`
+                    `######Type
+                        String
+                    `######Description
+                        The default closingReplacement that will be added to a rule if the shorthand activated, and the rule didn't already define a closingReplacement.
+#RuleSet
+    `####Example
+        `js 
+            {
+                addition: [SomeRule, AnotherRule],
+                removal: ["ruleName2",10,RuleToRemove]
+            }
+        `
+    `####Type
+        - null`
+        - Array`
+        - Object`
+    `####Description
+        The data that determines what rules are available within this node's content.`
+        If null is provided, this will act as the baseSet field.`
+        If an Array is provided, this will act as the additionSet field.
+    `####Fields
+        #####`addition`
+            `######Alias
+                `a`
+            `######Example
+                `js addition: [someRule]`
+            `######Type
+                Array of [link]Rules[/link]
+            `######Description
+                The rules to add to the [link]baseSet[/link].
+        #####`dontCarryAddition`
+            `######Alias
+                `dca`
+            `######Example
+                `js dontCarryAddition: [someRule]`
+            `######Type
+                Array of [link]Rules[/link]
+            `######Description
+                The rules to add to the [link]baseSet[/link], without carrying to the baseSets of descendants.
+        #####`baseSet`
+            `######Alias
+                `b`
+            `######Example
+                `js baseSet: [someRule]`
+            `######Type
+                Array of [link]Rules[/link]
+            `######Description
+                The array of default rules that can be added to or removed from.`
+                When set to null, it will become an empty array.`
+                When not defined, it will be the array of rules of its parent minus the changes from the dontCarryAddition and dontCarryRemoval fields.
+        #####`removal`
+            `######Alias
+                ` r`
+            `######Example
+                `js removal: ["someRule"]`
+            `######Type
+                Array of [link]Rules[/link], Numbers or Strings
+            `######Description
+                Removes all the rules from the [link]baseSet[/link] that match the values of the array.`
+                If a Number is defined in the array, the rule at this index in the baseSet will be removed.`
+                If a String is defined in the array, the rule with this string as its name will be removed.
+        #####`dontCarryRemoval`
+            `######Alias
+                ` dcr`
+            `######Example
+                `js dontCarryRemoval: ["someRule"]`
+            `######Type
+                Array of [link]Rules[/link], Numbers or Strings
+            `######Description
+                Removes all the rules from the [link]baseSet[/link] that match the values of the array.`
+                If a Number is defined in the array, the rule at this index in the baseSet will be removed.`
+                If a String is defined in the array, the rule with this string as its name will be removed.`
+                These changes don't carry to the baseSets of descendants. 
+        #####`addAfter`
+            `######Alias
+                `af`
+            `######Example
+                `js addAfter: "someRule"`
+            `######Type
+                -[link]Rule[/link]`
+                -Number`
+                -String`
+            `######Description
+                Defines the rule after which the addition arrays should be added.`
+                By default they will be inserted at the start of the array.`
+                If a Number is provided, they will be added after the rule at this index.`
+                If a String is provided, they will be added after the rule with this string as its name.
+`
+#Matcher
+    `####Example
+        `js /t|s/`
+    `####Type
+        -Array of Matchers (that are not arrays)`
+        -Regex`
+        -String`
+        -Function returning String or Regex`
+        -Object`
+    `####Description
+        The data that determines what parts of the text should be matched.`
+        This makes use of regular expressions, but offers more customization.`
+        If an array is provided, the items in the array will be matchers their selves and will just be options.`
+        If a function, regular expression or string is provided, this will act as the 'match' field in the object.
+    `####Fields
+        #####`match`
+            `######Example
+                `js match: "test"`
+            `######Type
+                -Regex`
+                -String`
+                -Function returning String or Regex`
+            `######Description
+                The actual expression to match.`
+                If a string is provided it will be escaped and converted to regex.`
+                The regular expressions will automatically get the flags global and multiline assigned.`
+                If a function is provided it will be called with the regex match groups of the opening match and the function should return either a string or regular expression to match.`
+                If a string or regular expression contains an @ followed by a number n, this will be replaced by the nth match group of the opening match.`\\
+                Example (full [link]Rule[/link]):`
+                    `js 
+                        new Rule({
+                            opening: /-|*/,
+                            closing: "@0"
+                        })
+                    `
+                Will either open and close on \* or on -, but won't close on - when opened on \* or opposite.
+                To literally match @, simply escape it with a `\` e.g. `/\@\w+/` to match `@something`.`
+                
+        #####`not`
+            `######Example (full Matcher)
+                `js 
+                    {
+                        match: /t\w{3}/,
+                        not: "test"
+                    }
+                `
+            `######Type
+                -Regex`
+                -String`
+                -Function returning String or Regex`
+            `######Description
+                The same description as for match applies here, except this will prevent the text from being matched if the not is matched.`
+                In the given example, it will match any 4 letter word starting with a t, except for 'test'.
+        #####`reset`
+            `######Example
+                `js reset: "\n"`
+            `######Type
+                -Regex`
+                -String`
+                -Function returning String or Regex`
+            `######Description
+                The same description as for match applies here, except this make the matcher not match again until the reset is matched first.`
+                In the given example, it would make the matcher at most once every line.`
+                This field is however only operational when used in a matcher for the [link url='#Rule>data>delete']deletion[/link] of text, not in opening or closing matchers.
+        #####`rep (replacement)`
+            `######Example
+                `js rep: "test"`
+            `######Type
+                -String`
+                -Function returning String
+            `######Description
+                The match found will be replaced with this value. This can be used when the matched text is also needed for the next match.`
+                The value will be an empty string by default.`
+                Any @ followed by a number will be replaced with the capture group, similar to the @ behavior in the match field.`
+                Example (full Rule):`
+                    `js
+                        new Rule({
+                            opening: {
+                                match: "##",
+                                rep: "#"
+                            },
+                            openingReplacement: "t"
+                        })
+                    `
+                Will match all \# symbols following each other, except for the last one. This will transpile '\#\#\#\#' to 'ttt\#'.`
+                `
+                [spoiler text="Diagram"][img]DML src/resources/Empirler-Opening.Rep Example.png[/img][/spoiler]
+        #####`offset`
+            `######Example
+                `js offset: 1`
+            `######Type
+                Number
+            `######Description
+                The minimal distance between the match and the opening match, I.E. the minimum length of the content of a Rule.`
+                For example, when the text `\//////////` is met by the following rule:`
+                `js
+                    new Rule({
+                        opening: "\\"
+                        closing: {
+                            offset: 5,
+                            match:"/"
+                        }
+                    })
+                ` `
+                the content is `/////` instead of the empty string, expected without the offset.
+        #####`literal`
+            `######Example
+                `js literal: true`
+            `######Type
+                Boolean
+            `######Description
+                If set to true, @ will remain a literal @ character in all expressions instead of being replaced with the opening match group.
+        #####`getData`
+            `######Example
+                `js 
+                    getData: function(match, arg1, arg2){
+                        return "text";
+                    }
+                `
+            `######Type
+                Function
+            `######Description
+                A function that can be used to extract data from a given match.`
+                The getData function of the opening Matcher will be accessible through the [link]Node's getData method[/link].`
+                See {=BBcode template.
+`
+#Match
+    `####Description
+        The data that a Matcher returns when matched. This data can be used in the Replacement when in the form of a function.
+    `####Properties
+        #####`match`
+            `######Example
+                `js {0:"{", index:8, input:"this is {some} text right here"}`
+            `######Type
+                Array
+            `######Description
+                The data returned by the actual regex execution that has been performed.
+        #####`index`
+            `######Example
+                `js 8`
+            `######Type
+                Number
+            `######Description
+                The index in the text at which the regex was matched.`
+                This will be the text in which the [link]Matcher's replacements[/link] have been applied, so it won't be identical to the index in the input text.
+        #####`exp`
+            `######Example
+                `js {match: /\{/gm, rep: ""}`
+            `######Type
+                Object
+            `######Description
+                The specific expression that was matched, only really useful if multiple expressions were provided in the [link]Matcher[/link].
+        #####`expIndex`
+            `######Example
+                `js 0`
+            `######Type
+                Number
+            `######Description
+                The index of the expression that was matched, only of importance if multiple expressions were provided in the [link]Matcher[/link].
+        #####`rep`
+            `######Example
+                `js ""`
+            `######Type
+                String
+            `######Description
+                The text that the the matched text was replaced with, only of importance if rep was provided in the [link]Matcher[/link].
+        #####`matcher`
+            `######Type
+                [link]Matcher[/link]
+            `######Description
+                The actual matcher that created this match.
+`
+#Replacement
+    `####Example
+        `js "test"`
+    `####Type
+        -String`
+        -Function returning String`
+        -Object`
+    `####Description
+        The data that will be used when assembling the nodes back into a text file.`
+        If a function or string is provided, this will act as the 'text' field of the object.`
+    `####Fields
+        #####` text`
+            `######Example
+                `js text: "test"`
+            `######Type
+                -String`
+                -Function returning String`
+            `######Description
+                The text that will be used for assembling the nodes into a text file.`
+                If a function is provided it will be called with the regex match groups and a callback method, the function should return a string, or call the callback method (passing the returned data as a parameter). The regex match groups can be used to access data which is normally accessed via `@`.`
+                The callback method is always the last argument, so can be accessed with `js arguments[arguments.length-1]`. This method should be used if the function doesn't return a string straight away, and needs to be asynchronous.`
+                The context of the function will be the [link]Node[/link] containing all the data to be used for the replacement.`
+                If a string or regular expression contains an @ followed by a number n, this will be replaced by the nth match group of the corresponding match.`
+                To literally match @, simply escape it with a \.
+        #####`literal`
+            `######Example
+                `js literal: true`
+            `######Type
+                Boolean
+            `######Description
+                If set to true, @ will remain an @ in the text instead of being replaced with the corresponding match group.
+`
+#Input
+    `####Description
+        The object which holds all the information about the transpilier's current state. You can add and read data to and from this object at any time, which makes it a really useful object for interoperability between different rules.
+    `####Properties
+        #####`srcText`
+            `######Type
+                String
+            `######Description
+                The text used to create the nodes, this is the text that was passed to Empirler to be transpiled.
+        #####` text`
+            `######Type
+                String
+            `######Description
+                The text that is being used to find the next rule match.`
+                This is the srcText, except the [link]Matcher's replacements[/link] have been applied to this string.
+        #####`srcNode`
+            `######Type
+                [link]Node[/link]
+            `######Description
+                The root node of the text. This node will start the process of dividing the text into child nodes.
+        #####`ruleStack`
+            `######Type
+                [link]RuleStack[/link]
+            `######Description
+                The information about what rules can currently be matched from within the node it is dividing into children.
+        #####`stackDepth`
+            `######Type
+                Number
+            `######Description
+                A rough estimate of how many callbacks deep the assembling process currently is.`
+                Used to prevent stack overflow errors by scheduling a function using setTimeout if the the stackDepthCutOff is reached.
+        #####`stackDepthCutOff`
+            `######Type
+                Number
+            `######Description
+                The maximum value that stackDepth may reach before a setTimeout is called.
+`
+#RuleStack
+    `##Description
+        The stack of Rules to be used by a node.`
+        When a node is opened the available rules will be pushed onto the stack, and when closing it, they will be popped off. 
+        If you want rules to only match in very specific conditions, you are able to manually add and remove rules to this stack.
+    `##Properties
+        ###`availableRules`
+            `####Type
+                Array
+            `####Description
+                All the rules that are defined in the syntax.
+        ###`stack`
+            `####Type
+                Array of Objects
+            `####Description
+                The stack of objects containing rules with the last one being the one to currently be used. 
+            `####Properties
+                #####`rules`
+                    `######Type
+                        Array of [link]Rules[/link]
+                    `######Description
+                        The actual rules that can be used by a node to divide its content into child nodes.
+                #####`carryRules`
+                    `######Type
+                        Array of [link]Rules[/link]
+                    `######Description
+                        The rules that will be carried to the child nodes for their division.`
+                        The reason for the existence of this array is that not all rules are always necessarily carried to their child nodes. 
+#Node
+    `##Description
+        When a rule is matched, it will create a node to store the information. If a Matcher or Replacement is in the form of a function, then it will take a specific context defined in the code below.`
+        `js
+            new Rule({
+               opening: function(){
+                  console.log(this) //parent node
+               },
+               closing: function(){
+                  console.log(this) //this node
+               },
+               openingReplacement: function(){
+                  console.log(this) //this node
+               },
+               closingReplacement: function(){
+                  console.log(this) //this node
+               }
+            })
+        ` `
+        Therefore, any of the methods and properties below can be used during transpilation and parsing.
+    ##Properties
+        #####`parentNode`
+            `######Type
+                [link]Node[/link]
+            `######Description
+                The node of which this node is the child.
+        #####`startMatch`
+            `######Type
+                [link]Match[/link]
+            `######Description
+                The matched data for the opening of this node.
+        #####`endMatch`
+            `######Type
+                [link]Match[/link]
+            `######Description
+                The matched data for the closing of this node.`
+                Only available if the rule had a closing Matcher and if this actually matched.
+        #####`rule`
+            `######Type
+                [link]Rule[/link]
+            `######Description
+                The rule that created this node.
+        #####`input`
+            `######Type
+                [link]Input[/link]
+            `######Description
+                The input data of the current transpilation taking place.
+        #####`matchers`
+            `######Type
+                Object of [link]Matchers[/link]
+            `######Description
+                A collection of the matchers that were used to create this node.
+        #####`startIndex`
+            `######Type
+                Number
+            `######Description
+                The index in the input's text at which this node starts.
+        #####`endIndex`
+            `######Type
+                Number
+            `######Description
+                The index in the input's text at which this node ends.
+        #####`content`
+            `######Type
+                Array of Strings and [link]Nodes[/link]
+            `######Description
+                The content of the node. This is a list consisting of child nodes and plain text in between these child nodes.
+        #####`assembled`
+            `######Type
+                String
+            `######Description
+                The assembled text of the node.`
+                Only available after the node has been assembled.`
+                If this data is needed before that, use the [link url='#Node>Methods>assemble']assemble[/link] method.
+    ##Methods
+        ###`assemble`
+            `####Parameters
+                `#####`callback`
+                    `######Type
+                        Function
+                    `######Description
+                        Will be called with the [link]Node[/link] as its context, with the assembled text as the first and only argument. 
+            `####Description
+                Assembles the node into its output text.
+        ###`getData`
+            `####Parameters
+                Any parameters defined by the start [link]Matcher's getData method[/link] except for the first argument.`
+                The first argument will be provided by this method.
+            `####Description
+                A clean way of accessing the data of the opening match, if a function to do so was provided by that [link]Matcher[/link].
+        ###`getClosingData`
+            `####Parameters
+                Any parameters defined by the end [link]Matcher's getData method[/link] except for the first argument.
+                The first argument will be provided by this method.
+            `####Description
+                A clean way of accessing the data of the closing match, if a function to do so was provided by that [link]Matcher[/link].
+        ###`cutDown`
+            `####Parameters
+                `#####` text`
+                    `######Type
+                        String
+                    `######Description
+                        The text to be cut down.
+            `####Descriptioon
+                Removes any leading white spaces from a string as well as the first soft tab from every line.
+        ###`trim`
+            `####Parameters
+                `#####` text`
+                    `######Type
+                        String
+                    `######Description
+                        The text to be trimmed.
+            `####Descriptioon
+                Removes the first soft tab from every line.
+        ###`filterChildren`
+            `####Parameters
+                `#####`func`
+                    `######Type
+                        Function returning Boolean
+                    `######Description
+                        The function to be used for filtering. The context as well as the first and only argument will be a child to be filtered.`
+                        If the function returns true, this child will be removed, if it returns false it won't be.
+                `#####`includeText (optional)`
+                    `######Type
+                        Boolean
+                    `######Description
+                        Whether the output should ever contain [link]Nodes[/link] as well as plain text.
+                `#####`callback`
+                    `######Type
+                        Function
+                    `######Description
+                        The function to be called once the filtering has finished. The context will be the [link]Node[/link] on which you called this method.`
+                        This function will be called with no arguments.
+            `####Description
+                A method to filter a node's content, it will remove nodes if the func parameter tells it to.
+                This method is only available if the rule has a [link url='#Rule>data>closing']closing Matcher[/link]
+                        
+        
+        

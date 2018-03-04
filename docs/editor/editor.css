@@ -1,0 +1,329 @@
+html,body{
+    margin: 0px;
+    width: 100%;
+    height: 100%;
+}
+.download{
+    display: none;
+}
+
+/*section division*/
+.codeArea{
+    width: 50%;
+    height: calc(100% - 40px);
+    float: left;
+    border-right: 1px solid #CCC;
+    box-sizing: border-box;
+}
+.rightArea{
+    float: left;
+    width: 50%;
+    height: calc(100% - 40px);
+    position: relative;
+}
+.inputEditorOuter{
+    height: 50%;
+    width: 100%;
+    position: relative;
+}
+.inputEditorOuter .horizontalResizeHandle{
+    left: auto;
+    right: 0;
+    display: none;
+}
+.inputEditor{
+    width: 100%;
+    height: 100%;
+}
+.content{
+    height: calc(50% - 1px);
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid #CCC;
+}
+.header{
+    width: 100%;
+    height: 40px;
+    border-bottom: 1px solid #CCC;
+    box-sizing: border-box;
+}
+
+/*header*/
+.header .button{
+    background-color: #F4F4F4;
+    height: 39px;
+    cursor: pointer;
+    border-left: 1px solid #CCC;
+    border-right: 1px solid #CCC;
+    line-height: 40px;
+    text-align: center;
+    padding-left: 5px;
+    padding-right: 5px;
+    box-sizing: border-box;
+}
+.header .button .icon{
+    position: relative;
+    display: inline-block;
+    height: 100%;
+    box-sizing: border-box;
+    width: 35px;
+    vertical-align: middle;
+}
+.header .button .icon .fa{
+    font-size: 20px;
+    right: 2px;
+    bottom: 2px;
+    position: absolute;
+    text-shadow: -1px 0 #F4F4F4, 0 1px #F4F4F4, 1px 0 #F4F4F4, 0 -1px #F4F4F4;
+}
+.header .button .icon .fa:nth-last-child(2){
+    right: 9px;
+    bottom: 9px;
+}
+.header .button .icon .fa:nth-last-child(3){
+    right: 16px;
+    bottom: 16px;
+}
+
+.toggleFullScreen, .toggleView{
+    float: right;
+    width: 40px;
+    text-align: center;
+    box-sizing: border-box;
+}
+.toggleFullScreen>div, .toggleView>div{
+    font-size: 24px;
+    height: 40px;
+    line-height: 40px;
+}
+
+.downloadSourceCode{
+    margin-right: 20px;
+    float: right;
+}
+.downloadSingleFileSourceCode{
+    float: right;
+}
+.transpileCode{
+    margin-left: 20px;
+    float: left;
+}
+.inputSyntaxHighlighting{
+    margin-right: 20px;
+    float: right;
+    width: 40px;
+}
+
+
+.downloadModeSourceCode{
+    float: left;
+}
+.uploadModeSourceCode{
+    float: left;
+    position: relative;
+    overflow: hidden;
+}
+.uploadModeSourceCode input{
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    max-width: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.mode{
+    float: left;
+    margin-left: 40px;
+    margin-right: 20px;
+}
+span[role=combobox]{
+    margin-left: 40px;
+    margin-right: 20px;
+}
+.renderMode{
+    float: right;
+    margin-right: 20px;
+}
+.pageMode{
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0);
+    float: left;
+    margin-right: 20px;
+}
+.pageMode>label{
+    width: 160px !important;
+}
+label.ui-button{
+    margin-left: 2px;
+    min-width: 0;
+}
+.loadDemoInput{
+    float: left;
+    margin-left: 20px;
+}
+
+.ui-botton:not(.ui-state-active){
+    background-color: #F4F4F4;
+}
+.ui-button{
+    float: left;
+    height: 39px;
+    padding: 10px;
+    box-sizing: border-box;
+    border: none;
+    border-left: 1px solid #CCC;
+    border-right: 1px solid #CCC;
+    width: auto !important;
+    min-width: 120px;
+}
+.ui-button:hover{
+    border: none;
+    border-left: 1px solid #CCC;
+    border-right: 1px solid #CCC;
+    background-color: #F4F4F4;
+}
+
+/*fullscreen toggling*/
+.toggleFullScreen .expand{display:block;}
+body.fullScreen .toggleFullScreen .expand{display:none;}
+.toggleFullScreen .shrink{display:none;}
+body.fullScreen .toggleFullScreen .shrink{display:block;}
+
+body.fullScreen .content{
+    display: none;
+}
+body.fullScreen .inputEditorOuter{
+    height: 100%;
+}
+/*code view toggling*/
+body.codeView .inputEditorOuter{
+    display: none;
+}
+body.codeView:not(.fullScreen) .content{
+    height: 100%;
+    border: none;
+}
+body.codeView.fullScreen .rightArea{
+    display: none;
+}
+body.codeView.fullScreen .codeArea{
+    width: 100% !important;
+}
+
+body:not(.inputView) .inputEditorOuter, 
+body:not(.inputView) .content{
+    width: 100% !important;
+}
+body.inputView .codeArea{
+    display: none;
+}
+body.inputView .rightArea{
+    width: 100% !important;
+}
+body.inputView .inputEditorOuter{
+    border-right: 1px solid #CCC;
+    height: 100%;
+    width: calc(50% - 1px);
+    float: right;
+}
+body.inputView .inputEditorOuter .verticalResizeHandle{
+    display: none;
+}
+body.inputView .inputEditorOuter .horizontalResizeHandle{
+    display: block;
+}
+body.inputView .content{
+    height: 100%;
+    width: 50%;
+    float: right;
+    border: none;
+}
+body.inputView.fullScreen .inputEditorOuter{
+    border: none;
+    width: 100%;
+}
+
+body.inputView .content,
+body.codeView .content{
+    height: 100% !important;
+}
+body.inputView .inputEditorOuter,
+body.codeView .inputEditorOuter,
+body.fullScreen .inputEditorOuter{
+    height: 100% !important;
+}
+
+/*code editor*/
+.editors{
+    border: none !important;
+    padding: 0px;
+    height: calc(100% - 221px);
+}
+body:not(.showConsole) .editors{
+    height: 100% !important;
+}
+.editor{
+    height: calc(100% - 44px);
+}
+.ui-icon.ui-icon-close{
+    cursor: pointer;
+}
+.addTab{
+    width: 36px;
+    text-align: center;
+    line-height: 35px;
+    height: 35px;
+    cursor: pointer;
+}
+.ui-tabs .ui-tabs-panel{
+    padding: 0 !important;
+}
+
+/*console*/
+.consoleOuter{
+    display: none;
+    height: 220px;
+    position: relative;
+}
+body.showConsole .consoleOuter{
+    border-top: 1px solid #CCC;
+    display: block;
+}
+.console{
+    height: 100%;
+}
+.toggleConsoleButton{
+    float: right;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    line-height: 20px;
+    text-align: center;
+}
+.js-console.inputCode.input{
+    margin-bottom: 40px;
+}
+
+/*resize handles*/
+.verticalResizeHandle{
+    height: 4px;
+    cursor: ns-resize;
+    position: absolute;
+    right: 0;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+}
+.horizontalResizeHandle{
+    width: 4px;
+    cursor: ew-resize;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 1000;
+}

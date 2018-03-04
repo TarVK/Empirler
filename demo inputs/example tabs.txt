@@ -1,0 +1,7 @@
+no indent
+    first tab group
+    which is shared for
+    multiple lines
+back to no indent
+    and indent once again
+        and indent even further

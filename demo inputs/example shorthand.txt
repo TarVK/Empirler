@@ -1,0 +1,4 @@
+<test>something</test>
+<tag>some other tag</tag>
+<!tag>tag with start exclamation mark</tag>
+<tag!>tag with end exclamation mark</tag>

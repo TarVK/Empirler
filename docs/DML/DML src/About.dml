@@ -1,0 +1,73 @@
+[head]
+    [html]
+        <link rel="icon" type="image/png" href="../favicon.png">
+        <style>
+            .button {
+                width:100%;
+                height:30px;
+                font-size:16pt;
+                line-height: 30px;
+                padding-left: 5px;
+            }
+            
+            .button:hover {
+                background-color:rgb(240,240,240);
+            }
+            
+            .button:active {
+                background-color:rgb(230,230,230);
+            }
+            
+            .websiteBrowser > a{
+                color: black;
+                text-decoration: none;
+            }
+            
+            .websiteBrowser > a:active{
+                color:black;
+            }
+            .websiteBrowser > a:hover{
+                background-color:rgb(240,240,240);
+            }
+        </style>
+    [/html]
+[/head]
+[siteBrowser]
+    [center]
+        [img width=50% styled=false hasPopup=false]../favicon.png[/img]
+    [/center]
+    `
+    `
+    [link url="../About.html"          ][button]About          [/button][/link]
+    [link url="../API-Reference.html"  ][button]API Reference  [/button][/link]
+    [link url="../Examples.html"  ][button]Examples  [/button][/link]
+    `
+    [link url="About.html"       ][button]About DML          [/button][/link]
+    [link url="API-Reference.html"  ][button]DML API Reference  [/button][/link]
+    `
+    [link url="../editor/editor.html"][button]Empirler Editor[/button][/link]
+    [link url="https://github.com/TarVK/Empirler/tree/version-1.0"][button]Source Code[/button][/link]
+    [html]
+        <div style=position:absolute;left:0;bottom:0;padding:20px>
+            By Tar van Krieken<br> and Sancarn
+        </div>
+    [/html]
+[/siteBrowser]
+# Documentation Markup Language
+
+## Extensive Markup Language for developers
+
+Documentation markup language, DML, provides a simple syntax, inspired by BB-code and Markdown, which has been designed for writing API documentation. The documentation written in DML is transpiled into HTML code using Empirler.`
+`
+The style of the final page is almost entirely determined by DML itself, rather than the inputs into DML. This means that although it can't be adapted to creating any website, like HTML, developers can spend more time developing the content of the documentation instead of the styling of it.`
+`
+You can start using this language yourself in the editor [link url="../editor/editor.html#mode=DML;view=viewer"]here[/link].`
+The DML source code of this page can be found [link url="https://github.com/TarVK/Empirler/tree/version-1.0/Formats/DML.js"]here[/link] as well as in the editor in IDE mode.`
+A DML syntax highlighter for ace has also been written, and is available [link url="https://github.com/TarVK/Empirler/tree/version-1.0/ace highlighter modes"]here[/link].`
+This highlighter is automatically loaded when you use DML in the editor. `
+`
+DML still lacks some important features however, so we intend to create a second version in the future.
+This second version will most likely be made in a second version of Empirler.`
+`
+Currently DML syntax is compiled into HTML, however future implementations of DML
+may include other formats.`

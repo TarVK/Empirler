@@ -1,0 +1,1307 @@
+<html>
+    <head>
+        <title>Empirler Editor</title>
+        <link rel="icon" href="../favicon.png">
+        <script src='../../Libraries/JQuery/jQuery.js'></script>
+        <script src='../../Libraries/Ace/build/ace.js' class=ace></script>
+        <script src='../../Libraries/Ace/build/ext-modelist.js'></script>
+        <script src='../../Libraries/JSzip/jszip.min.js'></script>
+        <script src='../../Libraries/Typo/typo.js'></script>
+        <script src="../../Libraries/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+        <script src="../../Libraries/js-console/console.js"></script>
+        <script src="../../Libraries/js-console/jsConsole.sf.js"></script>
+        <script src='../../Empirler.js'></script>
+        <link rel="stylesheet" href='../../Libraries/Font Awesome/css/font-awesome.css' type="text/css" />
+        <link rel="stylesheet" href="../../Libraries/jquery-ui-1.12.1.custom/jquery-ui.min.css" />
+        <link rel="stylesheet" href="../../Libraries/js-console/console.css" />
+        <link rel="stylesheet" href="editor.css" />
+        <style>
+            /*ace fix*/
+            body .ace_searchbtn.prev, body .ace_searchbtn.next{
+                top: 0px;
+                margin-top: 0px;
+                vertical-align: top;
+                height: 16px;
+                /* line-height: 22px; */
+                padding-top: 6px;
+            }
+            .ace_misspelled{
+                text-decoration: underline red;
+            }
+
+        
+            /*src: https://projects.lukehaas.me/css-loaders/*/
+            .loader,
+            .loader:after {
+                display: inline-block;
+                border-radius: 50%;
+                width: 30px;
+                height: 30px;
+                box-sizing: border-box;
+                vertical-align: middle;
+            }
+            .loading .loader{
+                display: inline-block;
+            }
+            .loader{
+                display: none;
+                font-size: 10px;
+                position: relative;
+                text-indent: -9999em;
+                border-top: 5px solid #DDD;
+                border-right: 5px solid #DDD;
+                border-bottom: 5px solid #DDD;
+                border-left: 5px solid #AAA;
+                -webkit-transform: translateZ(0);
+                -ms-transform: translateZ(0);
+                transform: translateZ(0);
+                -webkit-animation: load8 1.1s infinite linear;
+                animation: load8 1.1s infinite linear;
+            }
+            @-webkit-keyframes load8 {
+              0% {
+                -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+              }
+              100% {
+                -webkit-transform: rotate(360deg);
+                transform: rotate(360deg);
+              }
+            }
+            @keyframes load8 {
+              0% {
+                -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+              }
+              100% {
+                -webkit-transform: rotate(360deg);
+                transform: rotate(360deg);
+              }
+            }
+
+        </style>
+    </head>
+    <body>
+        <a class=download download="file.html">Download</a>
+        <div class=notify>
+            
+        </div>
+        <div class=header>
+            <select class=mode title="Select the syntax mode to use">
+                
+            </select>
+            <div class='downloadModeSourceCode button' title="Download the mode code to be used by empirler">
+                <div class=icon>
+                    <div class="fa fa-file-code-o"></div>
+                    <div class="fa fa-arrow-down"></div>
+                </div>
+                <div class=loader>Loading...</div>
+            </div>
+            <div class='uploadModeSourceCode button' title="Upload the mode code to be used by empirler">
+                <div class=icon>
+                    <div class="fa fa-file-code-o"></div>
+                    <div class="fa fa-arrow-up"></div>
+                </div>
+                <div class=loader>Loading...</div>
+                <input type=file class=importModeCode></input>
+            </div>
+            <div class="loadDemoInput button" title="Load example text attached to syntax mode">
+                Load Demo Input
+            </div>
+            <div class='transpileCode button' title="Transpile the inserted code using the selected syntax mode (ctrl+s)">
+                Transpile
+                <div class=loader>Loading...</div>
+            </div>
+            
+            
+            <div class='pageMode'>
+                <label for="radio-4" title="Render the transpiled code as html">Empirler IDE</label>
+                <input type="radio" name="pageMode" id="radio-4" class="IDE" checked>
+                <label for="radio-5" title="Render the transpiled code as text">Empirler Viewer</label>
+                <input type="radio" name="pageMode" id="radio-5" class="viewer">
+            </div>
+            
+            
+            <div class='toggleFullScreen button' title="Toggle between preview in same tab or dedicated tab">
+                <div class='expand fa fa-window-restore'></div>
+                <div class='shrink fa fa-columns'></div>
+            </div>
+            <div class='toggleView button' title="Toggle between visible code areas">
+                <div class='fa fa-th-large'></div>
+            </div>
+            <div class='downloadSourceCode button' title="Download the transpiled code of the page for on file server">
+                <div class=icon>
+                    <div class="fa fa-file-text-o"></div>
+                    <div class="fa fa-arrow-down"></div>
+                </div>
+                <div class=loader>Loading...</div>
+            </div>
+            <div class='downloadSingleFileSourceCode button' title="Download the transpiled code of the page as standalone file">
+                <div class=icon>
+                    <div class="fa fa-file-text-o"></div>
+                    <div class="fa fa-file-image-o"></div>
+                    <div class="fa fa-arrow-down"></div>
+                </div>
+                <div class=loader>Loading...</div>
+            </div>
+            <div class=renderMode>
+                <label for="radio-1" title="Render the transpiled code as html">Html</label>
+                <input type="radio" name="renderMode" id="radio-1" class="html" checked>
+                <label for="radio-2" title="Render the transpiled code as text">Text</label>
+                <input type="radio" name="renderMode" id="radio-2" class="text">
+                <label for="radio-3" title="Render the transpiled code with syntax highlighting">Code</label>
+                <input type="radio" name="renderMode" id="radio-3" class="code">
+            </div>
+            <div class='inputSyntaxHighlighting button fa fa-pencil' title="Change input syntax highlighting">
+                
+            </div>
+        </div>
+        <div class=codeArea>
+            <div class=editors>
+                <ul>
+                    <li class="tab"><a href="#tab1">Code</a></li>
+                    <li class="addTab fa fa-plus ui-tabs-tab ui-corner-top ui-state-default ui-tab ui-tabs-active"></li>
+                    <div class='toggleConsoleButton ui-state-default fa fa-code' title="Toggle between hidden and shown console"></div>
+                </ul>
+                <div class='editor codeEditor' id="tab1"></div>
+            </div>
+            <div class=consoleOuter>
+                <div class=verticalResizeHandle></div>
+                <div class=console>
+                </div>
+            </div>
+        </div>
+        <div class=rightArea>
+            <div class=horizontalResizeHandle></div>
+            <iframe class=content></iframe>
+            <div class=inputEditorOuter>
+                <div class=horizontalResizeHandle></div>
+                <div class=verticalResizeHandle></div>
+                <div class=inputEditor></div>
+            </div>
+        </div>
+        <script>
+        var modes = {
+            "tmpl base": {
+                name: "tmpl: base",
+                displayMode: "text",
+            },
+            "tmpl multifile": {
+                name: "tmpl: multifile",
+                displayMode: "html",
+                extraFiles: [
+                    {name:"tmpl multifile.html", lang:"html"},
+                    {name:"tmpl multifile.css", lang:"css"}
+                ]
+            },
+            "tmpl bbcode": {
+                name: "tmpl: bbcode",    
+                displayMode: "html",
+            },
+            "DML": {
+                name: "mode: dml", 
+                syntaxHighlighter: "dml",
+                displayMode: "html",
+                extraFiles: [
+                    {name:"DML.html", lang:"html"},
+                    {name:"DML.css", lang:"css"}
+                ],
+                showInUtilize: true,
+            },
+            "demo replace var": {
+                name: "demo: replace var",
+                displayMode: "code:javascript",
+                syntaxHighlighter: "javascript",
+            },
+            "example shorthand": {
+                name: "example: shorthand",
+                displayMode: "text"
+            },
+            "example rule stacking": {
+                name: "example: rule stacking",
+                displayMode: "html"
+            },
+            "example tracking data": {
+                name: "example: tracking data",
+                displayMode: "html"
+            },
+            "example tabs": {
+                name: "example: tabs",
+                displayMode: "html"
+            }
+        }
+        var scrollTarget = ".documentScrollContainer";
+        var dictionaryPath = "/Libraries/Typo/dictionaries";
+        
+        //editor setup
+        {
+            var languageMode;
+            var inputEditor;
+            var codeEditor;
+            var additionalCodeEditors = {}; //for css files and such
+            var codeDirty = false;
+            
+            // tabs setup
+            {
+                var tabs = $(".editors").tabs();
+                var tabID = 2; //may increment infinitely
+                var tabTemplate = "<li class='tab'><a href='#{href}'>{label}</a> <span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>";
+ 
+                
+                function addCodeEditor(title, content, language){
+                    var id = tabID++;
+                    
+                    //tab
+                    var l = $(tabTemplate.replace("{href}", "tab"+id).replace("{label}", title));
+                    l.insertBefore($(".editors .addTab"));
+                    setupTabRename(l);
+                    l.find(".ui-icon-close").click(function(){
+                        if(window.confirm("Are you sure you want to remove this file?"))
+                            closeCodeEditor(l);
+                    });
+                    
+                    //content
+                    var editorEl = $("<div lang='"+language+"' class='editor "+title.replace(/\s/g,"_")+"' id='tab" + id + "' name='"+title+"'></div>");
+                    tabs.append(editorEl);
+                    
+                    var editor = ace.edit(editorEl[0]);
+                    editor.setTheme("ace/theme/xcode");
+                    editor.getSession().setMode("ace/mode/"+language);
+                    editor.setValue(content, -1);
+                    editor.getSession().setUseWrapMode(true);
+                    editor.getSession().setUseSoftTabs(true);
+                    editor.$blockScrolling = Infinity;
+                    editor.commands.addCommand({
+                        name: "transpile",
+                        bindKey: {win: "Ctrl-s", mac: "Command-s"},
+                        exec: function(){transpile()}
+                    });
+                    editor.getSession().on('change', function() {
+                        codeDirty = true;
+                    });
+                    additionalCodeEditors[id] = editor;
+                    
+                    //show highlighting when selected
+                    l.click(function(){ 
+                        editor.renderer.updateFull();
+                    });
+                    
+                    tabs.tabs("refresh");
+                }
+                function setTabModeName(name){
+                    $(".editors .tab a").first().text(name);
+                    $(codeEditor.container).attr("name", name);
+                }
+                
+                function closeCodeEditors(){
+                    $(".editors .tab").not(":first-child").each(function(){
+                        closeCodeEditor($(this));
+                    });
+                }
+                function closeCodeEditor(element){
+                    var id = element.find("a").attr("href").replace(/[^0-9]/g, "");
+                    var editor = additionalCodeEditors[id];
+                    if(editor)
+                        editor.destroy();
+                    delete additionalCodeEditors[id];
+                        
+                    element.remove();
+                    $("#tab"+id).remove();
+                    
+                    tabs.tabs("refresh");
+                }
+                
+                $(".tab").each(function(){
+                    setupTabRename($(this));
+                });
+                function setupTabRename(element){
+                    element.find("a").click(function(){
+                        if(element.is(".ui-state-active")){
+                            $(this).attr("contentEditable", true);
+                        }
+                    }).blur(function(){
+                        $(this).attr("contentEditable", false);
+                        var id = $(this).attr("href").replace(/[^0-9]/g, "");
+                        $("#tab"+id).attr("name", $(this).text());
+                    }).keydown(function(e){
+                        e.stopImmediatePropagation();
+                    });
+                }
+                
+                var modelist = ace.require("ace/ext/modelist");
+                $(".addTab").click(function(){
+                    var language = window.prompt("What language should the editor be?", "");
+                    if(!language) return;
+                    while(!modelist.modesByName[language]){
+                        language = window.prompt("that language is unknown, try another one?", "text");
+                        if(!language) return;
+                    }
+                    var modeData = modelist.modesByName[language];
+                    
+                    var mainName = $(".editors .tab a").first().text().split(".");
+                    if(mainName.length>1) mainName.pop();
+                    
+                    var name = mainName.join(".")+"."+modeData.extensions.split("|")[0];
+                    addCodeEditor(name, "", language);
+                });
+            }
+            
+            // editor setup
+            {
+                function setupEditors(){
+                    //initialise input editor
+                    if(inputEditor){
+                        inputEditor.resize();
+                    }else{
+                        inputEditorEl = $(".inputEditor")[0];
+                        inputEditor = ace.edit(inputEditorEl);
+                        inputEditor.setTheme("ace/theme/xcode");
+                        inputEditor.getSession().setUseWrapMode(true);
+                        inputEditor.getSession().setUseSoftTabs(true);
+                        inputEditor.$blockScrolling = Infinity;
+                        inputEditor.commands.addCommand({
+                            name: "transpile",
+                            bindKey: {win: "Ctrl-s", mac: "Command-s"},
+                            exec: function(){transpile()}
+                        });
+                        
+                        setupSpellCheckFix();
+                        setInputEditorLanguage(languageMode);
+                    }
+                    
+                    //initialise code editor
+                    if(codeEditor){
+                        codeEditor.resize();
+                    }else{
+                        codeEditorEl = $(".codeEditor")[0];
+                        codeEditor = ace.edit(codeEditorEl);
+                        codeEditor.setTheme("ace/theme/xcode");
+                        codeEditor.getSession().setUseWrapMode(true);
+                        codeEditor.getSession().setUseSoftTabs(true);
+                        codeEditor.$blockScrolling = Infinity;
+                        codeEditor.getSession().setMode("ace/mode/javascript");
+                        codeEditor.getSession().setUseWorker(false);
+                        codeEditor.commands.addCommand({
+                            name: "transpile",
+                            bindKey: {win: "Ctrl-s", mac: "Command-s"},
+                            exec: function(){transpile()}
+                        });
+                        codeEditor.getSession().on('change', function() {
+                            codeDirty = true;
+                        });
+                    }
+                    
+                    //initialise additional editors
+                    var editorKeys = Object.keys(additionalCodeEditors);
+                    for(var i=0; i<editorKeys.length; i++){
+                        var key = editorKeys[i];
+                        
+                        //dispose old editor
+                        var editor = additionalCodeEditors[key];
+                        editor.resize();
+                    }
+                    
+                    //update preview code editor
+                    if(currentWindow && currentWindow.editor)
+                        currentWindow.editor.resize();
+                }
+                function setInputEditorText(text){
+                    inputEditor.setValue(text, -1);
+                    inputEditor.getSession().setUseSoftTabs(true);
+                }
+                function setCodeEditorText(text){
+                    codeEditor.setValue(text, -1);
+                    codeEditor.getSession().setUseSoftTabs(true);
+                }
+                function setInputEditorLanguage(lang){
+                    languageMode = lang||"text";
+                    inputEditor.getSession().setMode("ace/mode/"+languageMode);
+                }
+                setupEditors();
+                
+                //prevent words you are still typing to be highlighted as misspelled
+                function setupSpellCheckFix(){
+                    var Range = ace.require("ace/range").Range;
+                    var updateSelectedWord = function(){
+                        var pos = inputEditor.getCursorPosition();
+                        var row = pos.row;
+                        var col = pos.column;
+                        var text = inputEditor.session.getTextRange(new Range(row,0,row,9999999));
+                        
+                        var regex = /([\w-']+)|([^\w-'])/g;
+                        var w;
+                        while(w=regex.exec(text)){
+                            if(w.index>=col)
+                                break;
+                            word = w[0];
+                        }
+                        
+                        window.selectedText = {line:text, word:word};
+                    };
+                    var lastRow = null;
+                    var updateAndRetokenize = function(){
+                        updateSelectedWord();
+                        var pos = inputEditor.getCursorPosition();
+                        inputEditor.session.bgTokenizer.$tokenizeRow(pos.row);
+                        inputEditor.session.bgTokenizer.fireUpdateEvent(pos.row);
+                        if(lastRow!=null){
+                            inputEditor.session.bgTokenizer.$tokenizeRow(lastRow);
+                            inputEditor.session.bgTokenizer.fireUpdateEvent(lastRow);
+                        }
+                        lastRow = pos.row;
+                    };
+                    var ul = inputEditor.renderer.$textLayer.updateLines;
+                    inputEditor.renderer.$textLayer.updateLines = function(){
+                    	updateSelectedWord();
+                    	ul.apply(this, arguments);
+                    };
+                    inputEditor.selection.on("changeCursor", updateAndRetokenize);
+                    inputEditor.selection.on("changeSelection", updateAndRetokenize);
+                }
+                
+            }
+        }
+        
+        //console setup
+        {
+            var cons = $(".console").jsConsole({style:"light", theme:"xcode", worker:'Empirler worker.js', forwardOutput:true});
+            var consoleErrorMethod = cons.error;
+            cons.error = function(){
+                toggleConsole(true);
+                consoleErrorMethod.apply(cons, arguments);
+            }; //show console on error
+        }
+        
+        //toggle display
+        {
+            var iframeWindow = $('iframe.content')[0].contentWindow;
+            var currentWindow = iframeWindow;
+            var seperateWindow;
+            var currentDoc = iframeWindow.document;
+            
+            //toggle fullscreen render
+            var fullScreen = false;
+            function toggleDisplay(){
+                fullScreen = !fullScreen;
+                currentDoc.open().close();
+                if(seperateWindow){
+                    seperateWindow.document.open().write("<script>window.close()<\/script>");
+                    seperateWindow = null;
+                }
+                
+                if(fullScreen){
+                    $("body").addClass("fullScreen");
+                    seperateWindow = window.open("", "Empirler preview");
+                    currentWindow = seperateWindow;
+                }else{
+                    $("body").removeClass("fullScreen");
+                    currentWindow = iframeWindow;
+                }
+                currentDoc = currentWindow.document;
+                
+                setupEditors();
+                setTimeout(function(){
+                    transpile();
+                });
+            }
+            $(".toggleFullScreen").click(toggleDisplay);
+            window.onbeforeunload = function(event){
+                if(seperateWindow)
+                    seperateWindow.document.open().write("<script>window.close()<\/script>");
+            };
+            
+            //toggle inputEditor view
+            var views = ["", "codeView", "inputView"];
+            var currentView = "";
+            function toggleView(newView){
+                if(newView==null || typeof(newView)!="string")
+                    newView = views[(views.indexOf(currentView)+1)%views.length];
+                $("body").removeClass(currentView);
+                $("body").addClass(newView);
+                
+                $(".content").width($(".content").width()-1); //update the content size to prevent a bug where the scrollbar doesn't render
+                setTimeout(function(){
+                	$(".content").css("width", "");
+                });
+                
+                currentView = newView;
+                
+                setupEditors();
+            }
+            $(".toggleView").click(toggleView);
+            
+            //toggle console
+            function toggleConsole(state){
+                if(!state) state = !$("body").is(".showConsole");
+                if(state === $("body").is(".showConsole")) return;
+                if(state){
+                    $("body").addClass("showConsole");
+                }else{
+                    $("body").removeClass("showConsole");
+                }
+                setupEditors(); 
+            }
+            $(".toggleConsoleButton").click(function(){
+                toggleConsole();   
+            });
+        }
+        
+        //resize display
+        {
+            var draggingHandle = false;
+            var resizeListeners = [];
+            var releaseFunc = null;
+            $(window).mousemove(function(e){
+                for(var i=0; i<resizeListeners.length; i++){
+                    if(resizeListeners[i](e)) return;
+                }
+                if(draggingHandle){
+                    
+                }
+            });
+            $(window).mouseup(function(e){
+                if(draggingHandle){
+                    setupEditors();
+                }
+                if(releaseFunc) releaseFunc();
+                draggingHandle = false;
+                releaseFunc = null;
+            });
+            
+            //console resize
+            {
+                var consoleHandle = $(".consoleOuter .verticalResizeHandle");
+                var consEl = $(".consoleOuter");
+                consoleHandle.mousedown(function(e){
+                    draggingHandle = consoleHandle[0];
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                });
+                resizeListeners.push(function(e){
+                    if(draggingHandle == consoleHandle[0]){
+                        var offset = consEl.offset();
+                        var deltaY = offset.top-e.pageY;
+                        var newHeight = Math.min($(window).height()-200, Math.max(100, consEl.height()+deltaY));
+                        consEl.height(newHeight);
+                        $(".editors").css("height", "calc(100% - "+(newHeight+1)+"px)");
+                        return true;
+                    }
+                });
+            }
+            
+            //horizontal split resize
+            {
+                var splitHandle = $(".rightArea>.horizontalResizeHandle");
+                var rightAreaEl = $(".rightArea");
+                splitHandle.mousedown(function(e){
+                    draggingHandle = splitHandle[0];
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    splitHandle.width(100);
+                    releaseFunc = function(){
+                        splitHandle.width(4);
+                    }
+                });
+                resizeListeners.push(function(e){
+                    if(draggingHandle == splitHandle[0]){
+                        var offset = rightAreaEl.offset();
+                        var deltaX = offset.left-e.pageX;
+                        var newWidth = Math.min($(window).width()-400, Math.max(400, rightAreaEl.width()+deltaX));
+                        rightAreaEl.width(newWidth);
+                        $(".codeArea").css("width", "calc(100% - "+(newWidth+1)+"px)");
+                        return true;
+                    }
+                });
+            }
+            
+            //horizontal input resize
+            {
+                var inputHandle = $(".inputEditorOuter>.horizontalResizeHandle");
+                var inputEl = $(".inputEditorOuter");
+                inputHandle.mousedown(function(e){
+                    draggingHandle = inputHandle[0];
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    inputHandle.width(100).css("right", "-96px");
+                    releaseFunc = function(){
+                        inputHandle.width(4).css("right", "0");
+                    };
+                });
+                resizeListeners.push(function(e){
+                    if(draggingHandle == inputHandle[0]){
+                        var deltaX = e.pageX-inputEl.width();
+                        var newWidth = Math.min($(window).width()-400, Math.max(400, inputEl.width()+deltaX));
+                        inputEl.width(newWidth);
+                        $(".content").css("width", "calc(100% - "+(newWidth+1)+"px)");
+                        return true;
+                    }
+                });
+            }
+            
+            //vertical input resize
+            {
+                var inputVerticalHandle = $(".inputEditorOuter>.verticalResizeHandle");
+                inputVerticalHandle.mousedown(function(e){
+                    draggingHandle = inputVerticalHandle[0];
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    inputVerticalHandle.height(100).css("top", "-96px");
+                    releaseFunc = function(){
+                        inputVerticalHandle.height(4).css("top", "0");
+                    };
+                });
+                resizeListeners.push(function(e){
+                    if(draggingHandle == inputVerticalHandle[0]){
+                        var offset = inputEl.offset();
+                        var deltaY = offset.top-e.pageY;
+                        var newHeight = Math.min($(window).height()-200, Math.max(100, inputEl.height()+deltaY));
+                        inputEl.height(newHeight);
+                        $(".content").css("height", "calc(100% - "+(newHeight+1)+"px)");
+                        return true;
+                    }
+                });
+            }
+        }
+        
+        //transpiler
+        {
+            cons.onWorkerMessage(function(e){
+                var data = e.data;
+                var args = transpileCalls[data.UID];
+                delete transpileCalls[data.UID];
+                clearTerminateMessageTimeout();
+                if(args && typeof(args[args.length-1])=="function"){
+                    if(data.error){
+                        console.error(data.error);
+                    }else{
+                        args[args.length-1](data.result);
+                    }
+                }
+            });
+            cons.onTerminate(function(){
+                console.log("detect");
+                $(".transpileCode").removeClass("loading");
+                transpileCalls = {};
+                cons.setupWorker();
+                codeDirty = true; //syntax is not present in worker
+                clearTerminateMessageTimeout();
+            });
+            
+            var transpileCalls = {};
+            var cssLinkRegex = /<link[^>]+(?:rel=(?:"stylesheet"|'stylesheet'|stylesheet)[^>]+href=('(?:\\.|[^'])+'|"(?:\\.|[^"])+"|(?:[^ >])+)|href=('(?:\\.|[^'])+'|"(?:\\.|[^"])+"|(?:[^ '"])+)[^>]+rel=(?:"stylesheet"|'stylesheet'|stylesheet))(?:\s+[^>]+(?:=(?:'(?:\\.|[^'])+'|"(?:\\.|[^"])+"|(?:[^ >])+))?)*>/g;
+            function transpile(oneFile, callback){
+                if(!callback) //show that it is loading if the transpiling will show on the screen
+                    $(".transpileCode").addClass("loading");
+                var args = Array.from(arguments);
+                if(codeDirty){
+                    setSyntax(function(){
+                        codeDirty = false;
+                        transpile.apply(window, args);
+                    });
+                }else{
+                    if(!callback){
+                        args[1] = function(transpiledCode){
+                            //store old scroll location
+                            var scrollEl = $(currentDoc).contents().find(scrollTarget).add($(currentDoc).find("html")).first();
+                            var oldOffset = scrollEl.scrollTop();
+                            
+                            //escape text if needed
+                            if(renderMode=="text"){
+                                transpiledCode = $("<div>").text(transpiledCode).html()
+                                transpiledCode = transpiledCode.replace(/\n/g, "<br>");
+                                transpiledCode = transpiledCode.replace(/\t/g, "&nbsp;".repeat(4));
+                                transpiledCode = transpiledCode.replace(/ /g, "&nbsp;");
+                                transpiledCode += "<style>body,html{ font: 12px/normal 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;}</style>";
+                            }else if(renderMode=="html"){
+                                // replace css file with file in editors
+                                var ap = Empirler.paths.absoluteFormatsPath;
+                                transpiledCode = transpiledCode.replace(cssLinkRegex, function(match, l1, l2){
+                                    var link = l1||l2;
+                                    if(link[0]=='"' && link[link.length-1]=='"') link = link.substring(1, link.length-1);
+                                    if(link[0]=="'" && link[link.length-1]=="'") link = link.substring(1, link.length-1);
+                                    if(ap == link.substring(0, ap.length)){
+                                        var file = link.substring(ap.length+1);
+                                        var keys = Object.keys(additionalCodeEditors);
+                                        for(var i=0; i<keys.length; i++){
+                                            var editor = additionalCodeEditors[keys[i]];
+                                            if($(editor.container).attr("name")==file)
+                                                return "<style>"+editor.getValue()+"</style>";
+                                        }
+                                        return match;
+                                    }else{
+                                        return match;
+                                    }
+                                });
+                            }
+                            
+                            //set window contents
+                            if(renderMode=="html" || renderMode=="text"){
+                                currentWindow.console = cons;
+                                
+                                if(currentWindow.editor){ 
+                                    currentWindow.editor.destroy();
+                                    currentWindow.editor = null
+                                }
+                                
+                                currentDoc.open();
+                                currentDoc.write(transpiledCode);
+                                currentDoc.close();
+                            }else{
+                                currentWindow.console = console;
+                                
+                                var oldScrollPos = 0;
+                                if(!currentWindow.editor){
+                                    currentDoc.open();
+                                    currentDoc.write("<!DOCTYPE html><html><head>"+
+                                                        $("style#ace-xcode")[0].outerHTML+
+                                                        $("style[id='ace_editor.css']")[0].outerHTML+
+                                                        $("style#ace-tm")[0].outerHTML+
+                                                        "<style>"+
+                                                            "html,body{margin:0px; height:100%; width:100%}"+
+                                                            ".editor{position:absolute;top:0;right:0;bottom:0;left:0;}"+
+                                                        "</style>"+
+                                                        "</head><body>"+
+                                                            "<div class=editor></div>"+
+                                                        "</body>");
+                                    currentDoc.close();
+                                    
+                                    currentWindow.editor = ace.edit($(currentDoc).find(".editor")[0]);
+                                }else{
+                                    oldScrollPos = currentWindow.editor.getSession().getScrollTop();
+                                }
+                                
+                                var editor = currentWindow.editor;
+                                editor.setTheme("ace/theme/xcode");
+                                editor.getSession().setMode("ace/mode/"+renderMode.split(":")[1]);
+                                editor.setValue(transpiledCode, -1);
+                                editor.setReadOnly(true);
+                                editor.getSession().setScrollTop(oldScrollPos);
+                            }
+                            
+                            //fix scroll position
+                            if(keepOffset){
+                                currentWindow.onload = function(){
+                                    setTimeout(function(){
+                                        var scrollEl = $(currentDoc).contents().find(scrollTarget).add($(currentDoc).find("html")).first();
+                                        scrollEl.scrollTop(oldOffset);
+                                    }, 10);
+                                };
+                            }
+                            keepOffset = true;
+                            
+                            //indicate that it is done
+                            $(".transpileCode").removeClass("loading");
+                        };
+                    }
+                    
+                    var UID = Math.floor(Math.random()*Math.pow(10,10));
+                    transpileCalls[UID] = args;
+                    cons.worker.postMessage({func:"transpile", UID:UID, oneFile:oneFile, text:inputEditor.getValue()});
+                    setTerminateMessageTimeout();
+                }
+            }
+            
+            function setSyntax(callback){
+                var UID = Math.floor(Math.random()*Math.pow(10,10));
+                transpileCalls[UID] = arguments;
+                var extraFiles = {};
+                var keys = Object.keys(additionalCodeEditors);
+                for(var i=0; i<keys.length; i++){
+                    var editor = additionalCodeEditors[keys[i]];
+                    var name = $(editor.container).attr("name");
+                    extraFiles[name] = editor.getValue();
+                }
+                cons.worker.postMessage({
+                    func:"setSyntax", 
+                    UID:UID, 
+                    name:$(codeEditor.container).attr("name"), 
+                    text:codeEditor.getValue(), 
+                    extraFiles:extraFiles
+                });
+                setTerminateMessageTimeout();
+            }
+            
+            var terminateMessageTimeout;
+            function setTerminateMessageTimeout(){
+                clearTerminateMessageTimeout();
+                terminateMessageTimeout = setTimeout(function(){
+                    toggleConsole(true);
+                    cons.info("It seems like the code is taking a while to execute,\nYou can press ctrl+c/cmd+c in this console to stop the code from executing if you think it is stuck.");
+                }, 7000);
+            }
+            function clearTerminateMessageTimeout(){
+                clearTimeout(terminateMessageTimeout);
+            }
+            
+            // setupWorker();
+        }
+        
+        //controls
+        {
+            function copyToClipboard(text){
+                var inp =document.createElement('textarea');
+                document.body.appendChild(inp)
+                inp.value = text;
+                inp.select();
+                document.execCommand('copy',false);
+                inp.remove();
+            };
+            function downloadString(text, name){
+                var blob;
+                if(text instanceof Blob){
+                    blob = text;
+                }else{
+                    blob = new Blob([text], {
+                        type: "text:/plain" 
+                    });
+                }
+                var url = URL.createObjectURL(blob);
+                $(".download").attr("download", name);
+                $(".download").attr("href", url);
+                $(".download")[0].click();
+            };
+            
+            //page mode setup (either show all tools, or only show things relevant for usage of a syntax mode)
+            {
+                $(".pageMode input[type=radio]").checkboxradio().on("change", function(event){
+                    var mode = $(event.target).attr("class").split(" ")[0];
+                    setPageMode(mode, true);
+                });
+                
+                var pageMode = "IDE";
+                var prevView;
+                function setPageMode(mode, dontUpdateGUI){
+                    var m;
+                    if(m = mode.match(/view=([^=;]*)/)) mode = m[1];
+                    
+                    if(!dontUpdateGUI){
+                        if(mode=="viewer") $(".pageMode .viewer").attr("checked","checked").change();
+                        else               $(".pageMode .IDE").attr("checked","checked").change();
+                    }else if(pageMode!=mode){
+                        pageMode = mode;
+                        
+                        var toggleSelector = ".downloadModeSourceCode, .toggleView, .renderMode, .inputSyntaxHighlighting";
+                        if(pageMode=="IDE"){
+                            $(toggleSelector).show();
+                            toggleView(prevView);
+                        }else{
+                            prevView = currentView;
+                            toggleView("inputView");
+                            $(toggleSelector).hide();
+                        }
+                        if(window.initModes)
+                            window.initModes();
+                    }
+                }
+                
+                if(window.location.hash)
+                    setPageMode(window.location.hash.substring(1));
+            }
+            
+            //transpiling and input language
+            {
+                $(".downloadSourceCode").click(function(){
+                    downloadSourceCode(false);
+                });
+                $(".downloadSingleFileSourceCode").click(function(){
+                    downloadSourceCode(true);
+                });
+                function downloadSourceCode(singleFile, force){
+                    var el = singleFile?$(".downloadSingleFileSourceCode"):$(".downloadSourceCode");
+                    if(!el.is(".loading") || force){
+                        el.addClass("loading");
+                        transpile(singleFile, function(transpiledCode){
+                            downloadString(transpiledCode, modes[syntaxMode].name+"-single-file.html");
+                            el.removeClass("loading");
+                        });
+                    }
+                }
+                
+                $(".transpileCode").click(function(){
+                    if($(".transpileCode").is(".loading")){
+                        cons.$trigger("terminate");
+                        cons.warn("Transpiling canceled");
+                    }else{
+                        transpile();
+                    }
+                });
+                
+                $(".inputSyntaxHighlighting").click(function(){
+                    var language = window.prompt("What language should the input editor be?", "");
+                    if(!language) return;
+                    while(!modelist.modesByName[language]){
+                        language = window.prompt("that language is unknown, try another one?", "text");
+                        if(!language) return;
+                    }
+                    // var modeData = modelist.modesByName[language];
+                    setInputEditorLanguage(language);
+                });
+            }
+            
+            //mode controls 
+            {
+                //init mode, also initialyzes first mode after retrieving demo text
+                {
+                    var syntaxMode;
+                    function initModes(firstLoad){
+                        var modeName = $(".mode + *>.ui-selectmenu-text").text();
+                        
+                        $(".mode").html("");
+                        try{
+                            $(".mode").selectmenu('destroy');
+                        }catch(e){}
+                        
+                        //get default mode
+                        var defaultMode = null;
+                        if(window.location.hash){
+                            var m = window.location.hash.substring(1).match(/mode=([^=;]*)/);
+                            if(m){
+                                defaultMode = m[1].replace(/%20/g, " ");
+                            }
+                        }
+                        
+                        //init modes
+                        var selectCalled = false;
+                        var keys = Object.keys(modes);
+                        for(var i=0; i<keys.length; i++){
+                            var key = keys[i]
+                            var m = modes[key];
+                            var show = pageMode=="IDE" || m.showInUtilize;
+                            if(show)
+                                $(".mode").append("<option value='"+key+"'>"+m.name+"</option>");
+                            
+                            if(firstLoad){
+                                var select = !selectCalled && show;
+                                if(select) selectCalled = true;
+                                (function(mode, select){
+                                    var call = 2;
+                                    var cb = function(){
+                                        if(select && --call==0)
+                                            $(function(){
+                                                $(".mode").val(mode);
+                                                $(".mode").selectmenu("refresh");
+                                                setMode(mode);
+                                            });
+                                    };
+                                    Empirler.getFile("../demo inputs/"+mode+".txt", function(text){
+                                        if(text.length>0)
+                                            modes[mode].exampleText = text;
+                                        cb();
+                                    });
+                                    if(modes[mode].extraFiles)
+                                        modes[mode].extraFiles.forEach(function(file){
+                                            call++;
+                                            Empirler.getFile(file.name, function(text){
+                                                file.code = text;
+                                                cb();
+                                            });
+                                        })
+                                    Empirler.getFile(mode+".js", function(text){
+                                        modes[mode].code = text;
+                                        cb();
+                                    });
+                                })(key, defaultMode==null?select:key==defaultMode);
+                            }
+                        }
+                        
+                        //create menu
+                        var prevModeVal = $(".mode").val();
+                        $(".mode").selectmenu({
+                            select: function(event, data){
+                                if(window.confirm("Are you sure you want to overwrite your current code?")){
+                                    setMode(data.item.value);
+                                    prevModeVal = $(".mode").val();
+                                }else{
+                                    $(".mode").val(prevModeVal);
+                                    $(".mode").selectmenu("refresh");
+                                }
+                                return false;
+                            }
+                        });
+                        
+                        if(!firstLoad)
+                            $(".mode + *>.ui-selectmenu-text").text(modeName);
+                    }
+                    initModes(true);
+                    
+                    
+                    function setModeLoading(val){
+                        if(val)
+                            $("[role=combobox] .ui-selectmenu-text").append("<div class=loader style=margin-left:10px;height:23px;width:23px;display:inline-block>Loading...</div>");
+                        else
+                            $("[role=combobox] .ui-selectmenu-text .loader").remove();
+                    }
+                    
+                    function setMode(name){
+                        var m;
+                        if(m = name.match(/mode=([^=;]*)/)) name = m[1];
+                        
+                        var prevMode = syntaxMode;
+                        var prevExampleText = "";
+                        if(prevMode && modes[prevMode])
+                            prevExampleText = modes[prevMode].exampleText;
+                        
+                        setModeLoading(true);
+                        closeCodeEditors();
+                        
+                        syntaxMode = name;
+                        var mode = modes[name];
+                        
+                        setTabModeName(name+".js");
+                        setInputEditorLanguage(mode.syntaxHighlighter);
+                        loadDemoText(prevExampleText);
+                        loadDemoCode();
+                        setRenderMode(mode.displayMode, false, true); //extra arguments to make it not transpile
+                        if(mode.extraFiles)
+                            for(var i=0; i<mode.extraFiles.length; i++){
+                                var f = mode.extraFiles[i];
+                                addCodeEditor(f.name, f.code, f.lang);
+                            }
+                        
+                        setSyntax(function(){
+                            setModeLoading(false);
+                            transpile();
+                        });
+                    }
+                }
+                
+                //init render mode (html/text)
+                {
+                    var renderMode = false;
+                    var passMode; //for when setting the renderMode programmatically
+                    var radioInitialized = false;
+                    $(".renderMode input[type=radio]").checkboxradio().on("change", function(event){
+                        if(radioInitialized){
+                            var mode = $(event.target).attr("class").split(" ")[0];
+                            if(mode=="code"){
+                                if(passMode){
+                                    mode = passMode;   
+                                    passMode = null;
+                                }else{
+                                    var language = window.prompt("What language should the output editor be?", "")||"text";
+                                    
+                                    while(!modelist.modesByName[language])
+                                        language = window.prompt("that language is unknown, try another one?", "text")||"text";
+                                        
+                                    mode += ":"+language;
+                                }
+                            }
+                            setRenderMode(mode, true);
+                        }
+                        radioInitialized = true;
+                    });
+                    var lastDontTranspile = false
+                    function setRenderMode(text, dontUpdateGUI, dontTranspile){
+                        renderMode = text;
+                        keepOffset = false;
+                        if(!dontUpdateGUI){
+                            lastDontTranspile = dontTranspile;
+                            $(".renderMode [checked]").removeAttr("checked");
+                            if(text=="text")      $(".renderMode .text").attr("checked","checked").change();
+                            else if(text=="html") $(".renderMode .html").attr("checked","checked").change();
+                            else{
+                                passMode = text;
+                                $(".renderMode .code").attr("checked","checked").change();   
+                            }
+                        }else if(!dontTranspile && !lastDontTranspile){
+                            transpile();
+                        }
+                        lastDontTranspile = false;
+                    }
+                }
+                
+                //load initial text
+                {
+                    function loadDemoText(force){
+                        var currentText = inputEditor.getValue();
+                         //force can also be a string, and only if the editor contains the same string will the input be overwritten
+                        if(typeof(force)=="string" && currentText!=force) force = false;
+                        
+                        if(currentText.replace(/\s/g,"").length==0 || force){
+                            setInputEditorText(modes[syntaxMode].exampleText);
+                            return true;
+                        }
+                    }
+                    $(".loadDemoInput").click(function(){
+                        if(!loadDemoText()){
+                            if(window.confirm("Are you sure you want to overwrite your current input?")){
+                                loadDemoText(true);
+                            }else{
+                                return;
+                            }
+                        } 
+                        transpile();
+                    });
+                    
+                    function loadDemoCode(force){
+                        setCodeEditorText(modes[syntaxMode].code);
+                        // if(codeEditor.getValue().replace(/\s/g,"").length==0 || force){
+                        //     return true;
+                        // }
+                    }
+                }
+                
+                //code import/export
+                {
+                    $(".downloadModeSourceCode").click(function(){
+                        downloadModeCode();
+                    });
+                    function downloadModeCode(force){
+                        var el = $(".downloadModeSourceCode");
+                        if(!el.is(".loading") || force){
+                            el.addClass("loading");
+                            
+                            var mainFileName = $(codeEditor.container).attr("name");
+                            var editorKeys = Object.keys(additionalCodeEditors);
+                            
+                            var mainFileNameNoExtension = mainFileName.split(".");
+                            if(mainFileNameNoExtension.length>0) mainFileNameNoExtension.pop();
+                            mainFileNameNoExtension = mainFileNameNoExtension.join(".");
+                            
+                            var zip = new JSZip();
+                            zip.file(mainFileName, codeEditor.getValue());
+                            
+                            var additionalFileLanguages = {};
+                            for(var i=0; i<editorKeys.length; i++){
+                                var editorKey = editorKeys[i];
+                                var editor = additionalCodeEditors[editorKey];
+                                var name = $(editor.container).attr("name");
+                                zip.file(name, editor.getValue());
+                                
+                                additionalFileLanguages[name] = $(editor.container).attr("lang");
+                            }
+                            
+                            zip.file("editorImportData.txt", JSON.stringify({
+                                mainFile: mainFileName,
+                                renderMode: renderMode,
+                                additionalFileLanguages: additionalFileLanguages,
+                                inputText: inputEditor.getValue(),
+                                inputLanguage: inputEditor.getSession().getMode().$id.split("/").pop()
+                            }, null, 4));
+                            
+                            zip.generateAsync({type:"blob"}).then(function(content){
+                                downloadString(content, mainFileNameNoExtension);
+                                el.removeClass("loading");
+                            });
+                        }
+                    }
+                    
+                    $(".importModeCode").change(function(){
+                        var file = this.files[0];
+                        importModeCode(file);
+                    });
+                    function importModeCode(blob, force){
+                        var el = $(".uploadModeSourceCode");
+                        if(!el.is(".loading") || force){
+                            el.addClass("loading");
+                        
+                            //set name
+                            var name = blob.name.split(".");
+                            if(name.length>0) name.pop();
+                            name = name.join(".");
+                            $(".mode + *>.ui-selectmenu-text").text(name);
+                            
+                            closeCodeEditors(); //remove old code
+                            
+                            //load content
+                            if(blob.type.match(/zip/)){
+                                var logImportFileStructure = function(){
+                                    cons.info("The import file should have the following structure:\n" + JSON.stringify({
+                                        mainFile: "Name of the main file, for instance: 'mainFileName.js'", 
+                                        renderMode:"'html', 'text' or 'code:language' whith language being something like javascript",
+                                        additionalFileLanguages: {
+                                            "Some additonal used file name.css": "css",
+                                            "Some other additonal used file name.html": "html",
+                                        },
+                                        inputText: "Some optional text to be loaded with the mode for testing",
+                                        inputLanguage: "Some optional language that your input text will have"
+                                    }, null, 4));
+                                };
+                                var zip = new JSZip();
+                                zip.loadAsync(blob).then(function(zip){
+                                    var keys = Object.keys(zip.files);
+                                    var mainFile = zip.files["editorImportData.txt"];
+                                    if(!mainFile){
+                                        cons.error(new Error("Zip's 'editorImportData.txt' is not valid json."));
+                                        logImportFileStructure();
+                                        el.removeClass("loading");
+                                        return;
+                                    }
+                                    mainFile.async("text").then(function(data){
+                                        try{
+                                            data = JSON.parse(data);
+                                        }catch(e){
+                                            cons.error(new Error("Zip doesn't contain a 'editorImportData.txt' file."));
+                                            logImportFileStructure();
+                                            el.removeClass("loading");
+                                            return
+                                        }
+                                        setRenderMode(data.renderMode);
+                                        
+                                        if(data.inputText) setInputEditorText(data.inputText);
+                                        if(data.inputLanguage) setInputEditorLanguage(data.inputLanguage);
+                                        
+                                        var showedFileStructureMessage = false;
+                                        var filesLeft = 0;
+                                        for(var i=0; i<keys.length; i++){
+                                            var key = keys[i];
+                                            if(key=="editorImportData.txt") continue;
+                                            
+                                            (function(key){
+                                                var file = zip.files[key];
+                                                file.async("text").then(function(content){
+                                                    if(key==data.mainFile){
+                                                        setTabModeName(key);
+                                                        setCodeEditorText(content);
+                                                    }else{
+                                                        var lang = "text";
+                                                        if((!data.additionalFileLanguages || !data.additionalFileLanguages[key]) &&
+                                                                !showedFileStructureMessage){
+                                                            cons.error("No language could be found for '"+key+"'.");
+                                                            logImportFileStructure();
+                                                            showedFileStructureMessage = true;
+                                                        }else{
+                                                            var lang = data.additionalFileLanguages[key];
+                                                        }
+                                                        addCodeEditor(key, content, lang);
+                                                    }
+                                                    if(--filesLeft==0){
+                                                        transpile();
+                                                        el.removeClass("loading");
+                                                    }
+                                                });
+                                            })(key);
+                                            
+                                            filesLeft++;
+                                        }
+                                        if(filesLeft.length==0){
+                                            setTabModeName("Missing");
+                                            setCodeEditorText("");
+                                            transpile();
+                                            el.removeClass("loading");
+                                        }
+                                    }, function(e){
+                                        cons.error(e);
+                                        el.removeClass("loading");
+                                    });
+                                }, function(e){
+                                    cons.error(e); 
+                                    el.removeClass("loading");
+                                });
+                            }else{
+                                var reader = new FileReader();
+                                reader.onload = function(){
+                                    setTabModeName(blob.name);
+                                    setCodeEditorText(reader.result);
+                                    el.removeClass("loading");
+                                };
+                                reader.readAsText(blob);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        </script>
+    </body>
+</html>

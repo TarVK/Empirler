@@ -1,0 +1,14 @@
+{
+  "name": "Empirler",
+  "version": "0.0.0",
+  "description": "Some server that transpiles DML files when requested",
+  "main": "DML file server.js",
+  "repository": "",
+  "author": "Tar van Krieken",
+  "dependencies": {
+    "async": "~0.2.8",
+    "socket.io": "~0.9.14",
+    "amd-loader": "0.0.8",
+    "express": "4.16.2"
+  }
+}

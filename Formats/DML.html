@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html class=documentScrollContainer>
+    <head>
+        [HEAD]
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+        <link rel="stylesheet" href="/Formats/DML.css">
+        <script src='/Libraries/JQuery/jQuery.js'></script>
+        [KATEXSHEET]
+        <link rel="stylesheet" href="/Libraries/Font Awesome/css/font-awesome.css">
+    </head>
+    <body>
+        <div class=alert>
+            
+        </div>
+        <div class=filePreviewOuter style=display:none>
+            <div class=filePreview>
+                <div class=fileHeader>
+                    <div class=fileName>Hank</div>
+                    <div class='fileCloseButton fa fa-close'></div>
+                    <br style=clear:both>
+                </div>
+                <div class=fileContent></div>
+            </div>
+        </div>
+        <div class=header>
+            <div class="siteNavigatorButton fa-file fa">
+                
+            </div>
+            <div class="pageNavigatorButton fa-bars fa">
+                
+            </div>
+        </div>
+        <div class=page>
+            <div class=websiteBrowser>
+                [BROWSER]
+            </div>
+            <div class="body">
+                [BODY]
+            </div>
+            <div class=pageBrowser style=position:relative;>
+                <div class=pageBrowserTitle>
+                    Contents
+                </div>
+                <div class=pageBrowserContent>
+                    [INDEX]
+                </div>
+            </div>
+            <br style=clear:both>
+        </div>
+        <script>
+            //fixAspectRatio
+            $(window).ready(updateHeight);
+            $(window).resize(updateHeight);
+            function updateHeight(){
+                var divs = $('[ratio]');
+                divs.each(function(){
+                    var ratio = divs.attr("ratio");
+                    var p = ratio.split(":");
+                    var wR = Number(p[0]); 
+                    var hR = Number(p[1]);
+                    var width = $(this).width();
+                    $(this).css('height', width/wR*hR);
+                });
+            }
+            
+            function appCopyToClipBoard(text){
+                var inp =document.createElement('textarea');
+                document.body.appendChild(inp)
+                inp.value = text;
+                inp.select();
+                document.execCommand('copy',false);
+                inp.remove();
+            }
+        
+            //index system
+            {
+                var topOffset;
+                var getIndex = function(id){
+                    if(!id) return null;
+                    var escID = id.replace(/[^\w]/g, '\\$&');
+                    return $(".index#"+escID);
+                }
+                var onScroll = function(){
+                    var rootTop = $(window).scrollTop();//$(".fileBrowser").offset().top;
+                    var headers = $("h1, h2, h3, h4, h5, h6, h7, h8, h9, h10").filter("[visible=true]");    
+                    var closestHeader;
+                    headers.each(function(){
+                        var dif = $(this).offset().top-rootTop-$(window).height()/3;
+                        if(dif<10)
+                            closestHeader = $(this);
+                    });
+                    if(closestHeader){
+                        var id = closestHeader.attr("id");
+                        if(id){
+                            $(".index.selected").removeClass("selected");
+                            var index = getIndex(id);
+                            index.addClass("selected");
+                        }
+                    }
+                };
+                var prevOffset;
+                //scroll to the location of the header
+                $(window).on('hashchange', function(){
+                    $(window).scrollTop(prevOffset);
+                    prevOffset = null;
+                    var id = decodeURIComponent(window.location.hash);
+                    if(id){
+                        var h = $("h1, h2, h3, h4, h5, h6, h7, h8, h9, h10").filter("#"+id.substring(1).replace(/[^\w]/g, '\\$&'));
+                        if(h.length>0){
+                            var spoilers = h.parentsUntil("body", ".spoilerContent[shown=false]");
+                            spoilers.prev().click();
+                            
+                            var t = h.offset().top - $(window).height()/3;
+                            if(spoilers.length>0)
+                                topOffset = t;
+                            $(window).scrollTop(t);
+                        }
+                    }
+                });
+                //change hash on index click
+                $("body>.page>.pageBrowser .index>.name").click(function(){
+                    prevOffset = $(window).scrollTop();
+                    
+                    var hash = $(this).parent().attr("id").split(">").map(function(val){
+                            return encodeURI(val);
+                        }).join(">");
+                    try{
+                        history.replaceState(undefined, undefined, "#"+hash);
+                        $(window).trigger('hashchange');
+                    }catch(e){
+                        window.location.hash = "";
+                        window.location.hash = hash;
+                    }
+                    onScroll();
+                });
+                //click index on header click
+                $("h1, h2, h3, h4, h5, h6, h7, h8, h9, h10").click(function(e){
+                    var index = getIndex($(this).attr("id"));
+                    if(index){
+                        index.find(".name").first().click();
+                        console.log($(this).closest(".spoilerText"));
+                        if($(this).closest(".spoilerText").length==0){
+                            appCopyToClipBoard(location.toString());
+                            alert("Url copied to clipboard");
+                        }
+                    }
+                });
+                //highlight selected index on scroll
+                $(window).scroll(onScroll);
+                
+                //on page open check for hash
+                setTimeout(function(){
+                    $(window).trigger('hashchange');
+                }, 10);
+            }
+            
+            //codeblock copy
+            $(".codeBlockCopy").click(function(){
+                var text = $(this).parent().parent().find(".codeBlockContent").children().text();
+                appCopyToClipBoard(text);
+                alert("Copied to clipboard");
+            });
+            
+            //spoiler system
+            $(".spoilerText").click(function(){
+                var content = $(this).next();
+                if(content.attr("shown")=="true"){
+                    content.attr("shown", false);
+                     
+                    content.stop().animate({height: 0}, 500);
+                     
+                    $(this).find(".shownSpoilerText").hide();
+                    $(this).find(".hiddenSpoilerText").show();
+                }else{
+                    content.attr("shown", true);
+                    
+                    var beginHeight = content.height();
+                    $({per:0}).animate({per:1}, {duration:500, step:function(per){ 
+                        //get new height
+                        // var startHeight = content.height();
+                        var endHeight = content.height("auto").height();
+                        content.height((endHeight-beginHeight)*per + beginHeight);
+                        
+                        //scroll to correct location if it wasn't reachable before
+                        if(topOffset){
+                            $(window).scrollTop(topOffset);
+                            if(Math.abs($(window).scrollTop()-topOffset)-2)
+                                topOffset = 0;
+                        }
+                    }, complete:function(){
+                        content.height("auto");
+                    }});
+                     
+                    $(this).find(".shownSpoilerText").show();
+                    $(this).find(".hiddenSpoilerText").hide();
+                }
+            });
+            
+            //navigation shpw/hide
+            $(".siteNavigatorButton").click(function(){
+                var show = $(".websiteBrowser").css("display")=="none";
+                $(".websiteBrowser").css("display", show?"block":"none");
+            })
+            $(".pageNavigatorButton").click(function(){
+                var show = $(".pageBrowser").css("display")=="none";
+                $(".pageBrowser").css("display", show?"block":"none");
+            })
+            
+            //alert
+            var timeout;
+            alert = function(text, time){
+                $(".alert").html(text);
+                clearTimeout(timeout);
+                $(".alert").animate({top: 0});
+                timeout = setTimeout(function(){
+                    $(".alert").animate({top: "-100%"});     
+                }, time||2000);
+                $(".alert").click(function(){
+                    appCopyToClipBoard($(this).find(".copy").text());
+                })
+            }
+            
+            //update navigator location
+            function updateNavigatorLocation(){
+                if($(document).width()>1260){
+                    $(".pageBrowser").css("position", "relative").css("left", 0);
+                    var margin = parseFloat($(".pageBrowser").css("margin-left"));
+                    var offset = $(".pageBrowser").offset();
+                    $(".pageBrowser").css("position", "fixed").css("left", offset.left-margin);
+                }
+            }
+            updateNavigatorLocation();
+            window.addEventListener("resize", updateNavigatorLocation);
+            
+            function openFile(file, name, type, data){
+                //set title
+                var fileName = decodeURIComponent(file.split("/").pop());
+                $(".filePreview .fileName").text(name!==null?name:fileName);
+                
+                $(".filePreviewOuter").css("display", "block");
+                //load content dependant on type
+                if(file.split(".").pop().match(/png|jpg|jpeg|gif/) || type=="image"){
+                    var image = $("<img>");
+                    image.attr("src", file);
+                    $(".filePreview .fileContent").html("").append(image);
+                    image.on("load", function(){
+                        $(".filePreview").addClass("visible");
+                    });
+                    if(file.match(/^data:image/))
+                        $(".filePreview").addClass("visible");
+                }else if(type=="htmlPreview"){
+                    var iframeEl = $("<iframe class=iframe style='max-height:calc(100vh - 100px); max-width:calc(100vw - 50px);'></iframe>");
+                    iframeEl.width(data.width.replace("%","vw"));
+                    iframeEl.height(data.height.replace("%","vh"));
+                    $(".filePreview .fileContent").html(iframeEl);
+                    var doc = iframeEl[0].contentWindow.document;
+                    doc.open();
+                    doc.write(file);
+                    doc.close();
+                    $(".filePreview").addClass("visible");
+                }
+            }
+            $(window).on('mousewheel', function(e){
+                if($(".filePreview").is(".visible"))
+                    e.preventDefault();
+            })
+            var hidePreview = function(){
+                $(".filePreview").removeClass("visible");
+                setTimeout(function(){
+                    $(".filePreviewOuter").css("display", "none");
+                    $(".filePreviewOuter iframe").remove();
+                }, 500);
+            }
+            $(".filePreview .fileCloseButton").click(hidePreview);
+            $(".filePreview").click(function(e){
+                e.stopPropagation();
+            });
+            $(window).click(function(e){
+                hidePreview();
+            });
+            
+            // bigger image preview
+            $(".image").click(function(e){
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                if($(this).attr("hasPopup")=="true"){
+                    var t = this;
+                    if($(this).is("div")) t = $(this).find("img");
+                    openFile($(t).attr("src"), $(t).attr("name"), "image");
+                }
+            });
+            
+            // code block preview
+            $(".codeBlockPreview").click(function(e){
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                
+                var codeBlock = $(this).closest(".codeBlock");
+                var code = codeBlock.find(".codeBlockContent").text();
+                var name = codeBlock.find(".codeBlockName").text();
+                openFile(code, name, "htmlPreview", {width:$(this).attr("previewWidth")||"640", height:$(this).attr("previewHeight")||"360"})
+            });
+        </script>
+    </body>
+</html>
