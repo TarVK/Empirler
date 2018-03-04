@@ -4,6 +4,13 @@ var Empirler = (function(){
     var absoluteFormatsPath = "/Formats"; //client side file request
     var relativeLibrariesPath = "Libraries";
     var absoluteLibrariesPath = "/Libraries";
+    if(typeof(window)!="undefined" && window.location.host.indexOf("github")!=-1){ //fix the base location for github hosted site
+        var parts = window.location.pathname.split("/");
+        parts.shift()
+        var projectPage = parts.shift();
+        absoluteFormatsPath = "/"+projectPage+absoluteFormatsPath;
+        relativeFormatsPath = "/"+projectPage+relativeFormatsPath;
+    }
     var runAsynchronous = true; //request files asynchronously (fileEmbeding will be async none the less)
     var embedFiles = false; //embed any used files directly into the transpiled code (only works when transpiling to html), requires fetch-base64 and the provided fix to work serverside
     var runServerSide = typeof(require)!="undefined";
