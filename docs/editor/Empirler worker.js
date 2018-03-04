@@ -96,20 +96,17 @@ if(self.location.host.indexOf("github")!=-1){ //fix the base location for github
     var open = XMLHttpRequest.prototype.open;
     XMLHttpRequest.prototype.open = function(type, path, aSync){
         var args = [].slice.call(arguments);
-        var ap = Empirler.paths.absoluteFormatsPath;
-        if(ap == path.substring(0, ap.length)){
-            var file = path.substring(ap.length+1);
-            if(externalFiles[file]){
-                var content = externalFiles[file];
-                Object.defineProperty(this, "responseText", {value:content});
-                Object.defineProperty(this, "status", {value:200});
-                Object.defineProperty(this, "readyState", {value:4});
-                this.send = function(){
-                    if(this.onreadystatechange)
-                        this.onreadystatechange.call(this);
-                }
-                return;
+        var fileName = path.split("/").pop();
+        if(externalFiles[fileName]){
+            var content = externalFiles[fileName];
+            Object.defineProperty(this, "responseText", {value:content});
+            Object.defineProperty(this, "status", {value:200});
+            Object.defineProperty(this, "readyState", {value:4});
+            this.send = function(){
+                if(this.onreadystatechange)
+                    this.onreadystatechange.call(this);
             }
+            return;
         }
         return open.apply(this, args);
     };
