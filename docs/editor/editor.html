@@ -679,7 +679,6 @@
                 }
             });
             cons.onTerminate(function(){
-                console.log("detect");
                 $(".transpileCode").removeClass("loading");
                 transpileCalls = {};
                 cons.setupWorker();
@@ -714,23 +713,24 @@
                                 transpiledCode += "<style>body,html{ font: 12px/normal 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;}</style>";
                             }else if(renderMode=="html"){
                                 // replace css file with file in editors
-                                var ap = Empirler.paths.absoluteFormatsPath;
+                                // var ap = Empirler.paths.absoluteFormatsPath;
                                 transpiledCode = transpiledCode.replace(cssLinkRegex, function(match, l1, l2){
                                     var link = l1||l2;
                                     if(link[0]=='"' && link[link.length-1]=='"') link = link.substring(1, link.length-1);
                                     if(link[0]=="'" && link[link.length-1]=="'") link = link.substring(1, link.length-1);
-                                    if(ap == link.substring(0, ap.length)){
-                                        var file = link.substring(ap.length+1);
-                                        var keys = Object.keys(additionalCodeEditors);
-                                        for(var i=0; i<keys.length; i++){
-                                            var editor = additionalCodeEditors[keys[i]];
-                                            if($(editor.container).attr("name")==file)
-                                                return "<style>"+editor.getValue()+"</style>";
-                                        }
-                                        return match;
-                                    }else{
-                                        return match;
+                                    // if(ap == link.substring(0, ap.length)){
+                                    //try to find a local file that matches
+                                    var fileName = link.split("/").pop();
+                                    var keys = Object.keys(additionalCodeEditors);
+                                    for(var i=0; i<keys.length; i++){
+                                        var editor = additionalCodeEditors[keys[i]];
+                                        if($(editor.container).attr("name")==fileName)
+                                            return "<style>"+editor.getValue()+"</style>";
                                     }
+                                    return match;
+                                    // }else{
+                                    //     return match;
+                                    // }
                                 });
                             }
                             
