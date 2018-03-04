@@ -4,8 +4,8 @@ var Empirler = (function(){
     var absoluteFormatsPath = "/Formats"; //client side file request
     var relativeLibrariesPath = "Libraries";
     var absoluteLibrariesPath = "/Libraries";
-    if(typeof(window)!="undefined" && window.location.host.indexOf("github")!=-1){ //fix the base location for github hosted site
-        var parts = window.location.pathname.split("/");
+    if(typeof(self)!="undefined" && self.location && self.location.host && self.location.host.indexOf("github")!=-1){ //fix the base location for github hosted site
+        var parts = self.location.pathname.split("/");
         parts.shift()
         var projectPage = parts.shift();
         absoluteFormatsPath = "/"+projectPage+absoluteFormatsPath;
