@@ -9,7 +9,7 @@ var Empirler = (function(){
         parts.shift()
         var projectPage = parts.shift();
         absoluteFormatsPath = "/"+projectPage+absoluteFormatsPath;
-        relativeFormatsPath = "/"+projectPage+relativeFormatsPath;
+        absoluteLibrariesPath = "/"+projectPage+absoluteLibrariesPath;
     }
     var runAsynchronous = true; //request files asynchronously (fileEmbeding will be async none the less)
     var embedFiles = false; //embed any used files directly into the transpiled code (only works when transpiling to html), requires fetch-base64 and the provided fix to work serverside
