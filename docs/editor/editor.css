@@ -100,13 +100,16 @@ html,body{
 .downloadSourceCode{
     margin-right: 20px;
     float: right;
+    overflow: hidden;
 }
 .downloadSingleFileSourceCode{
     float: right;
+    overflow: hidden;
 }
 .transpileCode{
     margin-left: 20px;
     float: left;
+    overflow: hidden;
 }
 .inputSyntaxHighlighting{
     margin-right: 20px;
@@ -117,6 +120,7 @@ html,body{
 
 .downloadModeSourceCode{
     float: left;
+    overflow: hidden;
 }
 .uploadModeSourceCode{
     float: left;
