@@ -1062,6 +1062,7 @@ var Empirler = (function(){
             var onReceive = function(forced){
                 if(xmlHttp.status!=200 && !forced){
                     console.error("file couldn't be found; "+file+" in "+absoluteBaseFolder);
+                    if(callback) callback("");
                     return null;  
                 }
                 text = xmlHttp.responseText;
@@ -1140,7 +1141,7 @@ var Empirler = (function(){
                         callback({link:link, file:file});
                     });
                 }else{
-                    Empirler.onWarning("Links must be absolute to be embeded");
+                    // Empirler.onWarning("Links must be absolute to be embeded");
                     callback({link:link, file:""});
                 }
             };
@@ -1240,16 +1241,23 @@ var Empirler = (function(){
         
         //actual embeding
         {
+            cssLinks = {};
             var convertCss = function(text){
                 replaceAsync(text, cssRegex, function(linkMatch, linkReplaceCallback){
                     getFileFromLinkAttribute(linkMatch[1]||linkMatch[2], function(ret){
-                        replaceAsync(ret.file, cssUrlRegex, function(urlMatch, urlReplaceCallback){
-                            getBase64FromUrl(urlMatch[1], ret.link, function(base64){
-                                urlReplaceCallback("url('"+base64+"')");
+                        if(!ret.file){
+                            var UID = "UID["+Math.floor(Math.random()*Math.pow(10,20))+"]";
+                            cssLinks[UID] = linkMatch[0];
+                            linkReplaceCallback(UID); //make sure the image replacement won't detect this link
+                        }else{
+                            replaceAsync(ret.file, cssUrlRegex, function(urlMatch, urlReplaceCallback){
+                                getBase64FromUrl(urlMatch[1], ret.link, function(base64){
+                                    urlReplaceCallback("url('"+base64+"')");
+                                });
+                            }, function(css){
+                                linkReplaceCallback("<style>"+css+"</style>");
                             });
-                        }, function(css){
-                            linkReplaceCallback("<style>"+css+"</style>");
-                        });
+                        }
                     }); 
                 }, convertImages);
             };
@@ -1263,9 +1271,18 @@ var Empirler = (function(){
             var convertJs = function(text){
                 replaceAsync(text, scriptRegex, function(scriptMatch, replaceCallback){
                     getFileFromLinkAttribute(scriptMatch[1], function(ret){
-                        replaceCallback("<script>"+ret.file.replace(/<\/script>/g, "</script\\>")+"</script>");
+                        if(!ret.file){
+                            replaceCallback(scriptMatch[0]);
+                        }else{
+                            replaceCallback("<script>"+ret.file.replace(/<\/script>/g, "</script\\>")+"</script>");
+                        }
                     });
-                }, callback);
+                }, function(text){
+                    text = text.replace(/UID\[([0-9]+)\]/g, function(match, g){
+                        return cssLinks[match];
+                    });
+                    callback(text);
+                });
             };
             
             // convertImages(text);
@@ -1383,7 +1400,7 @@ var Empirler = (function(){
         return returnText;
     };
     Empirler.onWarning = function(message, returnText){
-        console.error(message);
+        console.warn(message);
         return returnText;
     };
     var lastSetSyntaxCall;
