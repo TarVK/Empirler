@@ -538,13 +538,11 @@
             LaTeX is a useful language for writing mathematical equations and formula. It is commonly used as a full markup language in the creation of academic papers. Here we can use latex to format equations inside DML.
             
             `#### Syntax`
-            
                 ```dml
                     [latex]
                         x = \left ( \frac{2\pi r^2 + \theta}{r-\pi} \right ) (r+1)
                     [/latex]
                 ```
-            
             `#### Preview`
             
                 [latex]
@@ -552,12 +550,12 @@
                 [/latex]
                 `
                 `
+        `
     ## Advanced DML
-    
         ### HTML
         
             The html tag allows you to write raw HTML into a website. Anything you put
-            between the tags will no be transpiled at all by the transpiler.
+            between the tags will not be transpiled at all by the transpiler.
             
             `#### Syntax`
             
