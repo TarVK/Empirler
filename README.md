@@ -9,7 +9,7 @@ It can be used to build transpilers which convert one programming language to an
 
 It can also be used in any case where data requires reading or transpiling but contains too much structure to just be understood purely with RegEx. Empirler can be seen as a library to extend the capabilities of a RegEx replacement, by providing structure and context to these replacements.
 
-Example of the type of transpiling that can be done by empirler:
+#Example of the type of transpiling that can be done by empirler
 input:
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
