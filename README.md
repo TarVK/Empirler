@@ -52,3 +52,6 @@ Currently, we have personally created 1 markup language with Empirler, called DM
 The code of Empirler is quite chaotic and may contain mistakes. The reason for this is that this once again is a project that started way simpler. The idea wasn't initially to build a script of more than a thousand lines, more around 200. In other words, very little planning initially went into this project, and parts of the code have been rewritten multiple times, and are likely to contain bugs.
 
 It is very likely that a version 2 of Empirler will be made, the project has already been started, and this will contain actual clean and maintainable code. The parts of this system have properly been planned and analyzed before writting the actual code. This system uses similar concepts to this initial version of Empirler, but will be way more generalized. 
+
+## Known issues
+-DML headers don't appear in index when using [h0][/h0] notation
