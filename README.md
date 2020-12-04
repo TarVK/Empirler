@@ -1,3 +1,5 @@
+Notice: this code is really bad, and I don't recommend anyone to use it. I am keeping this repository visible because I think it still was a cool project, but in hindsight all code is quite bad.
+
 # Empirler
 Empirler.js is an open-source library, written in JavaScript. It can be used to create your own markup language, and transpile it to a known language like HTML. It is designed to both be usable client and server side. To use the library server side you require node.js.
 
